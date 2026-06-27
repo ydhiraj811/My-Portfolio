@@ -13,18 +13,18 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
   return (
     <main className="site-shell">
       <header className="topbar">
-        <a className="brand" href="#top" aria-label="Go to top">
+        <a className="brand" href="" aria-label="Go to top">
           <span className="brand-mark">DY</span>
           <span>{profile.name.split(" ")[0]}</span>
         </a>
         <nav className="nav" aria-label="Primary navigation">
-          <a href="#about">About</a>
-          <a href="#skills">Skills</a>
-          <a href="#consistency">Consistency</a>
-          <a href="#experience">Experience</a>
-          <a href="#projects">Projects</a>
-          <a href="#blog">Blog</a>
-          <a href="#contact">Contact</a>
+          <a href="">About</a>
+          <a href="/skills">Skills</a>
+          <a href="/consistency">Consistency</a>
+          <a href="/experience">Experience</a>
+          <a href="/projects">Projects</a>
+          <a href="/blog">Blog</a>
+          <a href="/contact">Contact</a>
         </nav>
         <div className="top-actions">
           <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
