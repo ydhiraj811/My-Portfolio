@@ -10,6 +10,13 @@ type Props = {
 export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
   const { profile } = portfolio;
 
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
     <main className="site-shell">
       <header className="topbar">
@@ -17,14 +24,20 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <span className="brand-mark">DY</span>
           <span>{profile.name.split(" ")[0]}</span>
         </a>
-        <nav className="nav" aria-label="Primary navigation">
-          <a href="">About</a>
-          <a href="/skills">Skills</a>
-          <a href="/consistency">Consistency</a>
-          <a href="/experience">Experience</a>
-          <a href="/projects">Projects</a>
-          <a href="/blog">Blog</a>
-          <a href="/contact">Contact</a>
+        <nav className="nav">
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("about");}}>About</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("skills");}}>Skills</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("consistency");}}>Consistency</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("experience");}}>Experience</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("projects");}}>Projects</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("blog");}}>Blog</a>
+
+          <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("contact");}}>Contact</a>
         </nav>
         <div className="top-actions">
           <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
