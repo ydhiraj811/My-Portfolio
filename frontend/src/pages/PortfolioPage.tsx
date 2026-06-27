@@ -1,5 +1,7 @@
 import type { ActivityResponse, Portfolio } from "../types/portfolio";
 import { ActivityCalendar } from "../components/ActivityCalendar";
+import {FaGithub} from "react-icons/fa"
+import { SiLeetcode } from "react-icons/si";
 
 type Props = {
   portfolio: Portfolio;
@@ -40,22 +42,20 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("contact");}}>Contact</a>
         </nav>
         <div className="top-actions">
-          <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub">GH</a>
-          <a className="icon-btn" href={profile.leetcode} target="_blank" rel="noreferrer" aria-label="LeetCode">LC</a>
+          <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={20}/></a>
+          <a className="icon-btn" href={profile.leetcode} target="_blank" rel="noreferrer" aria-label="LeetCode"><SiLeetcode size={20}></SiLeetcode></a>
           <button className="admin-tab" onClick={onAdminClick}>Admin</button>
         </div>
       </header>
 
       <section className="hero" id="top">
         <div className="hero-content">
-          <p className="eyebrow">{profile.role} in {profile.location}</p>
+          <p className="eyebrow">{profile.role} </p>
           <h1>{profile.name}</h1>
           <p className="hero-lede">{profile.headline}</p>
           <div className="hero-links">
             <a className="btn primary" href="#projects">View projects</a>
             <a className="btn dark" href={`mailto:${profile.email}`}>Contact me</a>
-            <a className="btn dark" href={profile.github} target="_blank" rel="noreferrer">GitHub repos</a>
-            <a className="btn dark" href={profile.leetcode} target="_blank" rel="noreferrer">LeetCode</a>
             <a className="btn dark" href={profile.resumeUrl} target="_blank" rel="noreferrer">Resume</a>
           </div>
         </div>
