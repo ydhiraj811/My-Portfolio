@@ -101,7 +101,7 @@ async function getGitHubContributionCalendar() {
     provider: "GitHub",
     username: config.githubUsername,
     profileUrl: `https://github.com/${config.githubUsername}`,
-    source: "github-user-contributions",
+    source: "github-contributions-caledar",
     ...summarize(days),
     days,
   };
@@ -209,7 +209,7 @@ export async function getLeetCodeActivity() {
     provider: "LeetCode",
     username: matchedUser.username,
     profileUrl: `https://leetcode.com/u/${matchedUser.username}/`,
-    source: "leetcode-calendar",
+    source: "leetcode-user-calendar",
     accepted,
     totalActiveDays: matchedUser.userCalendar.totalActiveDays,
     total: days.reduce((sum, day) => sum + day.count, 0),
