@@ -102,12 +102,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
 
       <section className="section consistency-band" id="consistency">
         <div className="section-head">
-          <div><span className="section-label">Consistency</span><h2>Practice visible at a glance.</h2></div>
-          <p>Live GitHub and LeetCode activity comes from backend APIs, then renders as contribution calendars.</p>
-        </div>
-        <div className="stack-strip">
-          <span>Portfolio stack</span>
-          {portfolio.stack.map((item) => <strong key={item}>{item}</strong>)}
+          <div><span className="section-label">Consistency</span></div>
         </div>
         <div className="activity-grid">
           {activity ? (
