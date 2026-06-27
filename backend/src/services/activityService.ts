@@ -216,5 +216,6 @@ export async function getLeetCodeActivity() {
     currentStreak: matchedUser.userCalendar.streak,
     bestStreak: summarize(days).bestStreak,
     days,
+    
   };
 }
