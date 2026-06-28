@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { api } from "./api/client";
+import { ApiError, api } from "./api/client";
 import { AdminPage } from "./pages/AdminPage";
 import { PortfolioPage } from "./pages/PortfolioPage";
 import type { ActivityResponse, Portfolio } from "./types/portfolio";
@@ -8,7 +8,8 @@ export function App() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [activity, setActivity] = useState<ActivityResponse>();
   const [page, setPage] = useState(location.hash === "#admin" ? "admin" : "site");
-  const [token, setToken] = useState(localStorage.getItem("portfolio-admin-token") || "");
+  const [token, setToken] = useState("");
+  const [authMessage, setAuthMessage] = useState("");
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -24,13 +25,21 @@ export function App() {
 
   async function handleLogin(email: string, password: string) {
     const result = await api.login(email, password);
-    localStorage.setItem("portfolio-admin-token", result.token);
     setToken(result.token);
+    setAuthMessage("");
   }
 
   async function handleSave(next: Portfolio) {
-    const saved = await api.updatePortfolio(next, token);
-    setPortfolio(saved);
+    try {
+      const saved = await api.updatePortfolio(next, token);
+      setPortfolio(saved);
+    } catch (err) {
+      if (err instanceof ApiError && err.status === 401) {
+        setToken("");
+        setAuthMessage("Your admin session expired. Please login again.");
+      }
+      throw err;
+    }
   }
 
   if (error) {
@@ -46,6 +55,7 @@ export function App() {
       <AdminPage
         portfolio={portfolio}
         token={token}
+        authMessage={authMessage}
         onLogin={handleLogin}
         onSave={handleSave}
         onBack={() => {

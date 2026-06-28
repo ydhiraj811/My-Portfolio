@@ -2,6 +2,16 @@ import type { ActivityResponse, Portfolio } from "../types/portfolio";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001/api";
 
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 async function request<T>(path: string, options: RequestInit = {}) {
   const response = await fetch(`${API_URL}${path}`, {
     ...options,
@@ -13,7 +23,7 @@ async function request<T>(path: string, options: RequestInit = {}) {
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ message: "Request failed" }));
-    throw new Error(error.message || "Request failed");
+    throw new ApiError(error.message || "Request failed", response.status);
   }
 
   return response.json() as Promise<T>;
