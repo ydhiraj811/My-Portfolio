@@ -18,6 +18,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 84px;
 }
 
 body {
@@ -58,6 +59,7 @@ button {
 
 .site-shell {
   min-height: 100vh;
+  overflow-x: clip;
 }
 
 .topbar {
@@ -1290,16 +1292,76 @@ p {
   opacity: 1;
 }
 
-@media (max-width: 940px) {
+@media (max-width: 1100px) {
+  html {
+    scroll-padding-top: 72px;
+  }
+
   .topbar {
-    align-items: flex-start;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+  }
+
+  .brand {
+    min-width: auto;
+  }
+
+  .brand span:last-child {
+    max-width: 132px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .nav {
-    order: 3;
-    width: 100%;
-    justify-content: flex-start;
+    display: none;
+  }
+
+  .top-actions {
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 38px;
+    min-height: 36px;
+  }
+
+  .admin-tab {
+    min-height: 36px;
+    padding: 0 12px;
+  }
+
+  .hero {
+    min-height: min(760px, 100svh);
+    align-items: center;
+    padding: 104px clamp(18px, 5vw, 44px) 44px;
+    background:
+      linear-gradient(90deg, rgba(8, 15, 13, 0.92), rgba(8, 15, 13, 0.74) 52%, rgba(8, 15, 13, 0.34)),
+      url("/assets/hero-workspace.png") 62% center / cover no-repeat;
+  }
+
+  .hero::after {
+    height: 12vh;
+  }
+
+  .hero-content {
+    width: min(620px, 100%);
+  }
+
+  .hero h1 {
+    max-width: 560px;
+    font-size: clamp(3rem, 8vw, 4.6rem);
+    line-height: 1;
+  }
+
+  .hero-lede {
+    max-width: 560px;
+  }
+
+  .section {
+    padding: 62px clamp(18px, 5vw, 44px);
   }
 
   .section-head,
@@ -1322,22 +1384,64 @@ p {
   }
 }
 
+@media (max-width: 940px) {
+  .project-grid,
+  .activity-grid,
+  .blog-grid,
+  .skill-wrap {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .admin-menu {
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 660px) {
   .hero {
-    min-height: 88vh;
-    padding-top: 154px;
+    min-height: min(680px, 100svh);
+    padding: 94px 18px 40px;
     background:
-      linear-gradient(90deg, rgba(8, 15, 13, 0.94), rgba(8, 15, 13, 0.76)),
-      url("/assets/hero-workspace.png") center / cover no-repeat;
+      linear-gradient(180deg, rgba(8, 15, 13, 0.88), rgba(8, 15, 13, 0.74) 48%, rgba(8, 15, 13, 0.44)),
+      url("/assets/hero-workspace.png") 64% center / cover no-repeat;
   }
 
-  .brand {
-    min-width: auto;
+  .topbar {
+    padding: 10px 12px;
   }
 
-  .nav {
-    gap: 12px;
-    font-size: 0.84rem;
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .brand span:last-child {
+    max-width: 84px;
+  }
+
+  .admin-tab {
+    font-size: 0.86rem;
+  }
+
+  .hero h1 {
+    margin-bottom: 16px;
+    font-size: clamp(2.65rem, 12vw, 3.6rem);
+  }
+
+  .hero-lede {
+    margin-bottom: 22px;
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .eyebrow {
+    margin-bottom: 14px;
+    font-size: 0.78rem;
+  }
+
+  .hero-links .btn {
+    flex: 1 1 140px;
   }
 
   .project-grid,
@@ -1376,5 +1480,15 @@ p {
 
   .admin-actions {
     justify-content: flex-start;
+  }
+}
+
+@media (max-width: 420px) {
+  .top-actions .icon-btn {
+    display: none;
+  }
+
+  .hero {
+    min-height: min(620px, 100svh);
   }
 }

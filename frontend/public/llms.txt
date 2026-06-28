@@ -1,0 +1,27 @@
+# Dhiraj Kumar Yadav
+
+Software Engineer based in New Delhi, India.
+
+Primary areas:
+- Backend APIs
+- MERN stack
+- TypeScript
+- Node.js and Express.js
+- MongoDB and schema design
+- AWS developer services
+- Test automation
+- Distributed monitoring systems
+
+Canonical site: https://dhiraj-yadav.in/
+GitHub: https://github.com/ydhiraj811
+LinkedIn: https://www.linkedin.com/in/ydhiraj811
+LeetCode: https://leetcode.com/u/ydhiraj811/
+
+Summary:
+Dhiraj Kumar Yadav is a software engineer with experience building backend APIs in Python and Node.js, AWS cloud services, MERN applications, and distributed monitoring systems. He has led test automation work and owns production-facing API work from design through deployment.
+
+Important pages:
+- Portfolio home: https://dhiraj-yadav.in/
+- Projects: https://dhiraj-yadav.in/#projects
+- Blog: https://dhiraj-yadav.in/#blog
+- Resume: https://dhiraj-yadav.in/assets/resume.pdf

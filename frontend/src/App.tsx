@@ -82,6 +82,7 @@ export function App() {
   }
 
   if (page === "admin") {
+    updatePageMeta("Portfolio Admin | Dhiraj Kumar Yadav", "Protected admin dashboard for portfolio content.", false);
     return (
       <AdminPage
         portfolio={portfolio}
@@ -166,7 +167,7 @@ function getProjectSlug(project: Portfolio["projects"][number]) {
   return project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
 
-function updatePageMeta(title: string, description: string) {
+function updatePageMeta(title: string, description: string, indexable = true) {
   document.title = title;
   let descriptionTag = document.querySelector<HTMLMetaElement>('meta[name="description"]');
   if (!descriptionTag) {
@@ -175,4 +176,12 @@ function updatePageMeta(title: string, description: string) {
     document.head.appendChild(descriptionTag);
   }
   descriptionTag.content = description;
+
+  let robotsTag = document.querySelector<HTMLMetaElement>('meta[name="robots"]');
+  if (!robotsTag) {
+    robotsTag = document.createElement("meta");
+    robotsTag.name = "robots";
+    document.head.appendChild(robotsTag);
+  }
+  robotsTag.content = indexable ? "index, follow, max-image-preview:large" : "noindex, nofollow";
 }
