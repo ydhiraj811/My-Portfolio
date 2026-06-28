@@ -22,6 +22,8 @@ Dhiraj Kumar Yadav is a software engineer with experience building backend APIs 
 
 Important pages:
 - Portfolio home: https://dhiraj-yadav.in/
-- Projects: https://dhiraj-yadav.in/#projects
-- Blog: https://dhiraj-yadav.in/#blog
+- Portfolio project: https://dhiraj-yadav.in/project/developer-portfolio-ai-admin-dashboard
+- Real-time chat project: https://dhiraj-yadav.in/project/real-time-chat-application
+- API ownership blog: https://dhiraj-yadav.in/blog/owning-production-apis
+- Automation leadership blog: https://dhiraj-yadav.in/blog/automation-leadership
 - Resume: https://dhiraj-yadav.in/assets/resume.pdf

@@ -145,7 +145,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
               <p>{project.summary}</p>
               <div className="chips">{project.stack.map((tech) => <span className="chip" key={tech}>{tech}</span>)}</div>
               <div className="card-actions">
-                <a className="btn ghost" href={`#project/${getProjectSlug(project)}`}>View details</a>
+                <a className="btn ghost" href={`/project/${getProjectSlug(project)}`}>View details</a>
                 {project.links.map((link) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label}</a>)}
               </div>
             </article>
@@ -160,7 +160,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
         </div>
         <div className="blog-grid">
           {portfolio.blogs.filter((blog) => blog.published !== false).map((blog) => (
-            <a className="blog-card" href={`#blog/${getBlogSlug(blog)}`} key={blog.title}>
+            <a className="blog-card" href={`/blog/${getBlogSlug(blog)}`} key={blog.title}>
               {blog.coverImage && <img className="card-image" src={blog.coverImage} alt="" />}
               <div className="blog-date">{blog.date}</div>
               <h3>{blog.title}</h3>

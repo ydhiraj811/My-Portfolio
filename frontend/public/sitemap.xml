@@ -2,22 +2,50 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://dhiraj-yadav.in/</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://dhiraj-yadav.in/#projects</loc>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://dhiraj-yadav.in/#blog</loc>
+    <loc>https://dhiraj-yadav.in/project/developer-portfolio-ai-admin-dashboard</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://dhiraj-yadav.in/#project/developer-portfolio-ai-admin-dashboard</loc>
+    <loc>https://dhiraj-yadav.in/project/real-time-chat-application</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://dhiraj-yadav.in/#blog/owning-production-apis</loc>
+    <loc>https://dhiraj-yadav.in/project/leave-on-time-management-system</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dhiraj-yadav.in/project/lawsathi-legal-advisory-platform</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://dhiraj-yadav.in/blog/owning-production-apis</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://dhiraj-yadav.in/blog/automation-leadership</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://dhiraj-yadav.in/blog/distributed-monitoring-product-work</loc>
+    <lastmod>2026-06-28</lastmod>
+    <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
 </urlset>

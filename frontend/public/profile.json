@@ -1,0 +1,13 @@
+{
+  "name": "Dhiraj Kumar Yadav",
+  "alternateName": "Dhiraj Yadav",
+  "url": "https://dhiraj-yadav.in/",
+  "jobTitle": "Software Engineer",
+  "location": "New Delhi, India",
+  "email": "ydhiraj811@gmail.com",
+  "github": "https://github.com/ydhiraj811",
+  "linkedin": "https://www.linkedin.com/in/ydhiraj811",
+  "leetcode": "https://leetcode.com/u/ydhiraj811/",
+  "skills": ["MERN", "TypeScript", "Node.js", "React", "MongoDB", "AWS", "REST APIs", "Test Automation", "Distributed Monitoring"],
+  "summary": "Software engineer focused on backend APIs, AWS cloud services, MERN applications, TypeScript, and distributed monitoring systems."
+}

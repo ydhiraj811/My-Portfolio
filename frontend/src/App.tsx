@@ -9,7 +9,7 @@ import type { ActivityResponse, Portfolio } from "./types/portfolio";
 export function App() {
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
   const [activity, setActivity] = useState<ActivityResponse>();
-  const [page, setPage] = useState(getPageFromHash());
+  const [page, setPage] = useState(getPageFromLocation());
   const [token, setToken] = useState("");
   const [authMessage, setAuthMessage] = useState("");
   const [error, setError] = useState("");
@@ -20,9 +20,13 @@ export function App() {
   }, []);
 
   useEffect(() => {
-    const syncHash = () => setPage(getPageFromHash());
+    const syncHash = () => setPage(getPageFromLocation());
     window.addEventListener("hashchange", syncHash);
-    return () => window.removeEventListener("hashchange", syncHash);
+    window.addEventListener("popstate", syncHash);
+    return () => {
+      window.removeEventListener("hashchange", syncHash);
+      window.removeEventListener("popstate", syncHash);
+    };
   }, []);
 
   async function handleLogin(email: string, password: string) {
@@ -92,7 +96,7 @@ export function App() {
         onSave={handleSectionSave}
         onLogout={handleLogout}
         onBack={() => {
-          location.hash = "";
+          history.pushState(null, "", "/");
           setPage("site");
         }}
       />
@@ -110,12 +114,12 @@ export function App() {
           blog={blog}
           portfolio={portfolio}
           onBack={() => {
-            location.hash = "blog";
+            history.pushState(null, "", "/#blog");
             setPage("site");
             window.setTimeout(() => document.getElementById("blog")?.scrollIntoView({ behavior: "smooth" }), 0);
           }}
           onAdminClick={() => {
-            location.hash = "admin";
+            history.pushState(null, "", "/#admin");
             setPage("admin");
           }}
         />
@@ -134,12 +138,12 @@ export function App() {
           project={project}
           portfolio={portfolio}
           onBack={() => {
-            location.hash = "projects";
+            history.pushState(null, "", "/#projects");
             setPage("site");
             window.setTimeout(() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" }), 0);
           }}
           onAdminClick={() => {
-            location.hash = "admin";
+            history.pushState(null, "", "/#admin");
             setPage("admin");
           }}
         />
@@ -148,10 +152,14 @@ export function App() {
   }
 
   updatePageMeta(`${portfolio.profile.name} | ${portfolio.profile.role}`, portfolio.profile.summary);
-  return <PortfolioPage portfolio={portfolio} activity={activity} onAdminClick={() => { location.hash = "admin"; setPage("admin"); }} />;
+  return <PortfolioPage portfolio={portfolio} activity={activity} onAdminClick={() => { history.pushState(null, "", "/#admin"); setPage("admin"); }} />;
 }
 
-function getPageFromHash() {
+function getPageFromLocation() {
+  const path = location.pathname.replace(/^\/+|\/+$/g, "");
+  if (path.startsWith("blog/")) return `blog:${path.replace("blog/", "")}`;
+  if (path.startsWith("project/")) return `project:${path.replace("project/", "")}`;
+
   const hash = location.hash.replace(/^#/, "");
   if (hash === "admin") return "admin";
   if (hash.startsWith("blog/")) return `blog:${hash.replace("blog/", "")}`;
@@ -184,4 +192,39 @@ function updatePageMeta(title: string, description: string, indexable = true) {
     document.head.appendChild(robotsTag);
   }
   robotsTag.content = indexable ? "index, follow, max-image-preview:large" : "noindex, nofollow";
+
+  const canonicalUrl = `https://dhiraj-yadav.in${location.pathname === "/" ? "/" : location.pathname}`;
+  let canonicalTag = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!canonicalTag) {
+    canonicalTag = document.createElement("link");
+    canonicalTag.rel = "canonical";
+    document.head.appendChild(canonicalTag);
+  }
+  canonicalTag.href = indexable ? canonicalUrl : "https://dhiraj-yadav.in/";
+
+  setMetaProperty("og:title", title);
+  setMetaProperty("og:description", description);
+  setMetaProperty("og:url", canonicalTag.href);
+  setMetaName("twitter:title", title);
+  setMetaName("twitter:description", description);
+}
+
+function setMetaProperty(property: string, content: string) {
+  let tag = document.querySelector<HTMLMetaElement>(`meta[property="${property}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.setAttribute("property", property);
+    document.head.appendChild(tag);
+  }
+  tag.content = content;
+}
+
+function setMetaName(name: string, content: string) {
+  let tag = document.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
+  if (!tag) {
+    tag = document.createElement("meta");
+    tag.name = name;
+    document.head.appendChild(tag);
+  }
+  tag.content = content;
 }
