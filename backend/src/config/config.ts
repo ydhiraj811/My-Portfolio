@@ -25,6 +25,13 @@ const configSchema = z.object({
   GITHUB_USERNAME: z.string().min(1).default("ydhiraj811"),
   GITHUB_TOKEN: z.string().optional().default(""),
   LEETCODE_USERNAME: z.string().min(1).default("ydhiraj811"),
+  SMTP_HOST: z.string().optional().default(""),
+  SMTP_PORT: z.coerce.number().int().positive().optional().default(587),
+  SMTP_SECURE: z.coerce.boolean().optional().default(false),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASS: z.string().optional().default(""),
+  CONTACT_TO_EMAIL: z.string().email().optional(),
+  CONTACT_FROM_EMAIL: z.string().email().optional(),
 });
 
 const parsed = configSchema.safeParse(process.env);
@@ -49,4 +56,13 @@ export const config = {
   githubUsername: parsed.data.GITHUB_USERNAME,
   githubToken: parsed.data.GITHUB_TOKEN,
   leetcodeUsername: parsed.data.LEETCODE_USERNAME,
+  smtp: {
+    host: parsed.data.SMTP_HOST,
+    port: parsed.data.SMTP_PORT,
+    secure: parsed.data.SMTP_SECURE,
+    user: parsed.data.SMTP_USER,
+    pass: parsed.data.SMTP_PASS,
+    toEmail: parsed.data.CONTACT_TO_EMAIL || parsed.data.ADMIN_EMAIL,
+    fromEmail: parsed.data.CONTACT_FROM_EMAIL || parsed.data.ADMIN_EMAIL,
+  },
 };

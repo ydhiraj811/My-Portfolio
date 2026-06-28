@@ -2,6 +2,8 @@ import type { ActivityResponse, Portfolio } from "../types/portfolio";
 import { ActivityCalendar } from "../components/ActivityCalendar";
 import {FaGithub} from "react-icons/fa"
 import { SiLeetcode } from "react-icons/si";
+import { FormEvent, useState } from "react";
+import { api } from "../api/client";
 
 type Props = {
   portfolio: Portfolio;
@@ -11,6 +13,9 @@ type Props = {
 
 export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
   const { profile } = portfolio;
+  const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
+  const [contactStatus, setContactStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [isSending, setIsSending] = useState(false);
 
   const scrollToSection = (id: string) => {
     document.getElementById(id)?.scrollIntoView({
@@ -18,6 +23,27 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
       block: "start",
     });
   };
+
+  async function handleContactSubmit(event: FormEvent) {
+    event.preventDefault();
+    setIsSending(true);
+    setContactStatus(null);
+
+    try {
+      await api.sendContact(contactForm);
+      setContactForm({ name: "", email: "", subject: "", message: "", website: "" });
+      setContactStatus({ type: "success", message: "Message sent. I will get back to you soon." });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Unable to send message right now.";
+      setContactStatus({ type: "error", message });
+    } finally {
+      setIsSending(false);
+    }
+  }
+
+  function updateContactField(key: keyof typeof contactForm, value: string) {
+    setContactForm((current) => ({ ...current, [key]: value }));
+  }
 
   return (
     <main className="site-shell">
@@ -172,22 +198,36 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
       </section>
 
       <section className="section dark" id="contact">
-        <div className="section-head">
-          <div><span className="section-label">Contact</span><h2>Let us build something reliable.</h2></div>
-          <p>Open to backend, cloud, full-stack, and infrastructure-focused software engineering conversations.</p>
-        </div>
         <div className="contact-grid">
-          <p className="contact-note">{profile.summary}</p>
-          <div className="social-grid">
-            {[
-              ["Email", profile.email, `mailto:${profile.email}`],
-              ["LinkedIn", cleanUrl(profile.linkedin), profile.linkedin],
-              ["GitHub", cleanUrl(profile.github), profile.github],
-              ["LeetCode", cleanUrl(profile.leetcode), profile.leetcode],
-            ].map(([label, text, url]) => (
-              <a className="social-card" href={url} target="_blank" rel="noreferrer" key={label}><span>{label}</span><span>{text}</span></a>
-            ))}
-          </div>
+          <aside className="contact-info">
+            <span className="section-label">Contact</span>
+            <h2>Let's build something reliable.</h2>
+            <p className="contact-note">{profile.summary}</p>
+            <div className="social-grid">
+              {[
+                ["Email", profile.email, `mailto:${profile.email}`],
+                ["LinkedIn", cleanUrl(profile.linkedin), profile.linkedin]
+              ].map(([label, text, url]) => (
+                <a className="social-card" href={url} target="_blank" rel="noreferrer" key={label}><span>{label}</span><span>{text}</span></a>
+              ))}
+            </div>
+          </aside>
+          <form className="contact-form" onSubmit={handleContactSubmit}>
+            <div className="contact-form-head">
+              <span className="section-label">Message</span>
+              <h3>Tell me what you are building.</h3>
+              <p>Open to backend, cloud, full-stack, and infrastructure-focused software engineering conversations.</p>
+            </div>
+            <div className="contact-form-grid">
+              <label>Name<input value={contactForm.name} onChange={(event) => updateContactField("name", event.target.value)} required minLength={2} maxLength={80} /></label>
+              <label>Email<input type="email" value={contactForm.email} onChange={(event) => updateContactField("email", event.target.value)} required maxLength={120} /></label>
+            </div>
+            <label>Subject<input value={contactForm.subject} onChange={(event) => updateContactField("subject", event.target.value)} required minLength={3} maxLength={120} /></label>
+            <label>Message<textarea value={contactForm.message} onChange={(event) => updateContactField("message", event.target.value)} required minLength={10} maxLength={3000} /></label>
+            <label className="hidden-field">Website<input tabIndex={-1} autoComplete="off" value={contactForm.website} onChange={(event) => updateContactField("website", event.target.value)} /></label>
+            {contactStatus && <p className={`contact-status ${contactStatus.type}`}>{contactStatus.message}</p>}
+            <button className="btn primary" type="submit" disabled={isSending}>{isSending ? "Sending..." : "Send message"}</button>
+          </form>
         </div>
       </section>
       <footer className="footer"><div className="footer-inner"><span>Built for {profile.name}</span><span>MERN + TypeScript with MongoDB-managed content.</span></div></footer>

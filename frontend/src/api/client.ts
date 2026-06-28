@@ -32,6 +32,11 @@ async function request<T>(path: string, options: RequestInit = {}) {
 export const api = {
   getPortfolio: () => request<Portfolio>("/portfolio"),
   getActivity: () => request<ActivityResponse>("/activity"),
+  sendContact: (payload: { name: string; email: string; subject: string; message: string; website?: string }) =>
+    request<{ ok: boolean; message?: string }>("/contact", {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }),
   login: (email: string, password: string) =>
     request<{ token: string; admin: { email: string } }>("/auth/login", {
       method: "POST",

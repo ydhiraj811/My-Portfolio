@@ -363,8 +363,16 @@ p {
 }
 
 .contact-grid {
-  grid-template-columns: 0.9fr 1.1fr;
+  grid-template-columns: minmax(0, 0.82fr) minmax(420px, 1.18fr);
   align-items: start;
+}
+
+.contact-info h2 {
+  margin: 18px 0 28px;
+  color: #fff;
+  font-size: clamp(3rem, 6vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: 0;
 }
 
 .panel,
@@ -838,9 +846,16 @@ p {
   gap: 6px;
   min-width: 150px;
   padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
+  transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.social-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(141, 213, 198, 0.55);
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .social-card span:first-child {
@@ -853,13 +868,140 @@ p {
 .social-card span:last-child {
   color: #fff;
   font-weight: 800;
-  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .contact-note {
+  max-width: 680px;
   color: rgba(248, 251, 248, 0.72);
   font-size: 1.05rem;
   line-height: 1.8;
+}
+
+.contact-info {
+  display: grid;
+  gap: 0;
+  align-content: start;
+}
+
+#contact .social-grid {
+  margin-top: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.contact-form {
+  display: grid;
+  gap: 14px;
+  align-self: start;
+  margin-top: 43px;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.contact-form-head {
+  display: grid;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.contact-form-head h3 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(1.25rem, 2.2vw, 1.8rem);
+  line-height: 1.15;
+}
+
+.contact-form-head p {
+  margin: 0;
+  color: rgba(248, 251, 248, 0.68);
+  line-height: 1.65;
+}
+
+.contact-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.contact-form label {
+  display: grid;
+  gap: 7px;
+  color: rgba(248, 251, 248, 0.82);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 8px;
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: rgba(248, 251, 248, 0.45);
+}
+
+.contact-form input {
+  min-height: 42px;
+  padding: 0 12px;
+}
+
+.contact-form textarea {
+  min-height: 150px;
+  padding: 12px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: 2px solid rgba(141, 213, 198, 0.45);
+  outline-offset: 2px;
+}
+
+.contact-form .btn {
+  justify-self: start;
+}
+
+.contact-form .btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.contact-status {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  line-height: 1.45;
+}
+
+.contact-status.success {
+  color: #dff9ef;
+  background: rgba(27, 109, 97, 0.55);
+  border: 1px solid rgba(141, 213, 198, 0.45);
+}
+
+.contact-status.error {
+  color: #ffe8e2;
+  background: rgba(143, 46, 37, 0.55);
+  border: 1px solid rgba(239, 199, 191, 0.4);
+}
+
+.hidden-field {
+  position: absolute;
+  left: -10000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
 }
 
 .footer {
@@ -1191,7 +1333,7 @@ p {
   font-size: 0.86rem;
 }
 
-.array-editor > textarea {
+.array-editor>textarea {
   width: 100%;
   min-height: 65vh;
   padding: 14px;
@@ -1371,6 +1513,14 @@ p {
     grid-template-columns: 1fr;
   }
 
+  .contact-info h2 {
+    font-size: clamp(2.6rem, 9vw, 4.8rem);
+  }
+
+  .contact-form {
+    margin-top: 0;
+  }
+
   .project-grid,
   .activity-grid,
   .blog-grid,
@@ -1385,6 +1535,7 @@ p {
 }
 
 @media (max-width: 940px) {
+
   .project-grid,
   .activity-grid,
   .blog-grid,
@@ -1474,7 +1625,8 @@ p {
   .item-row,
   .item-row.two,
   .project-detail-grid,
-  .preview-grid {
+  .preview-grid,
+  .contact-form-grid {
     grid-template-columns: 1fr;
   }
 
