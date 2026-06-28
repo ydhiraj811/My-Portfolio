@@ -23,9 +23,31 @@ export type Portfolio = {
   stack: string[];
   skills: Array<{ title: string; items: string[] }>;
   experience: Array<{ role: string; company: string; period: string; location: string; bullets: string[] }>;
-  projects: Array<{ title: string; year: string; summary: string; stack: string[]; links: Link[] }>;
+  projects: Array<{
+    title: string;
+    slug?: string;
+    year: string;
+    summary: string;
+    body?: string;
+    imageUrl?: string;
+    stack: string[];
+    highlights?: string[];
+    links: Link[];
+    metaTitle?: string;
+    metaDescription?: string;
+  }>;
   education: Array<{ title: string; institution: string; period: string; detail: string }>;
-  blogs: Array<{ title: string; date: string; excerpt: string; slug?: string; body?: string; published?: boolean }>;
+  blogs: Array<{
+    title: string;
+    date: string;
+    excerpt: string;
+    slug?: string;
+    body?: string;
+    coverImage?: string;
+    metaTitle?: string;
+    metaDescription?: string;
+    published?: boolean;
+  }>;
 };
 
 export type ActivityDay = {

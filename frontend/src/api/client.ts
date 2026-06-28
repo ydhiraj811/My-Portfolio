@@ -43,4 +43,16 @@ export const api = {
       headers: { Authorization: `Bearer ${token}` },
       body: JSON.stringify(portfolio),
     }),
+  updateProjects: (projects: Portfolio["projects"], token: string) =>
+    request<Portfolio>("/portfolio/projects", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ projects }),
+    }),
+  updateBlogs: (blogs: Portfolio["blogs"], token: string) =>
+    request<Portfolio>("/portfolio/blogs", {
+      method: "PUT",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ blogs }),
+    }),
 };

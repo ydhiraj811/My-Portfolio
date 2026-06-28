@@ -6,7 +6,8 @@ type Props = {
   token: string;
   authMessage: string;
   onLogin: (email: string, password: string) => Promise<void>;
-  onSave: (portfolio: Portfolio) => Promise<void>;
+  onSave: (section: Section, portfolio: Portfolio) => Promise<void>;
+  onLogout: () => void;
   onBack: () => void;
 };
 
@@ -16,13 +17,14 @@ type Notify = (message: string, type?: "success" | "error") => void;
 const sections: Section[] = ["profile", "stats", "stack", "skills", "experience", "projects", "education", "blogs"];
 let notifyTimer: number | undefined;
 
-export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onBack }: Props) {
+export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onLogout, onBack }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [active, setActive] = useState<Section>("profile");
   const [draft, setDraft] = useState<Portfolio>(portfolio);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     setDraft(portfolio);
@@ -42,8 +44,8 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onBa
   async function handleSave(event: FormEvent) {
     event.preventDefault();
     try {
-      await onSave(draft);
-      notify("Changes saved to MongoDB.");
+      await onSave(active, draft);
+      notify(`${sectionTitle(active)} saved to MongoDB.`);
     } catch (error) {
       notify(error instanceof Error ? error.message : "Unable to save changes.", "error");
     }
@@ -88,6 +90,8 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onBa
           <p>Field-based dashboard. Saves update MongoDB through the protected API.</p>
         </div>
         <div className="admin-actions">
+          <button className="btn" onClick={() => setPreviewOpen((value) => !value)}>{previewOpen ? "Hide preview" : "Preview"}</button>
+          <button className="btn" onClick={onLogout}>Logout</button>
           <button className="btn" onClick={onBack}>View site</button>
         </div>
       </header>
@@ -119,6 +123,8 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onBa
           {active === "projects" && <ProjectsEditor portfolio={draft} notify={notify} onChange={(projects) => updateArray("projects", projects)} />}
           {active === "education" && <EducationEditor portfolio={draft} notify={notify} onChange={(education) => updateArray("education", education)} />}
           {active === "blogs" && <BlogsEditor portfolio={draft} notify={notify} onChange={(blogs) => updateArray("blogs", blogs)} />}
+
+          {previewOpen && <PreviewPanel active={active} portfolio={draft} />}
 
           <div className="save-row">
             <span className={`status ${messageType}`}>{message || "Unsaved edits stay on this screen until you save."}</span>
@@ -247,7 +253,7 @@ function ExperienceEditor({ portfolio, notify, onChange }: { portfolio: Portfoli
 
 function ProjectsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; notify: Notify; onChange: (value: Portfolio["projects"]) => void }) {
   function addProject() {
-    onChange([...portfolio.projects, { title: "", year: "", summary: "", stack: [], links: [] }]);
+    onChange([...portfolio.projects, { title: "", slug: "", year: "", summary: "", body: "", imageUrl: "", stack: [], highlights: [], links: [], metaTitle: "", metaDescription: "" }]);
     notify("Project section added.");
   }
 
@@ -257,9 +263,16 @@ function ProjectsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio;
         <EditorCard title={project.title || `Project ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.projects, index))} key={index}>
           <div className="mini-grid">
             <label className="field">Title<input value={project.title} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, title: event.target.value }))} /></label>
+            <label className="field">Slug<input value={project.slug || ""} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, slug: event.target.value }))} /></label>
             <label className="field">Year / type<input value={project.year} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, year: event.target.value }))} /></label>
+            <label className="field">Image URL<input value={project.imageUrl || ""} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, imageUrl: event.target.value }))} /></label>
           </div>
           <label className="field">Summary<textarea value={project.summary} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, summary: event.target.value }))} /></label>
+          <label className="field">Detail body<textarea value={project.body || ""} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, body: event.target.value }))} /></label>
+          <div className="mini-grid">
+            <label className="field">SEO title<input value={project.metaTitle || ""} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, metaTitle: event.target.value }))} /></label>
+            <label className="field">SEO description<input value={project.metaDescription || ""} onChange={(event) => onChange(replaceAt(portfolio.projects, index, { ...project, metaDescription: event.target.value }))} /></label>
+          </div>
           <StringList
             title="Stack"
             items={project.stack}
@@ -268,6 +281,15 @@ function ProjectsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio;
             placeholder="MongoDB"
             notify={notify}
             onChange={(stack) => onChange(replaceAt(portfolio.projects, index, { ...project, stack }))}
+          />
+          <StringList
+            title="Highlights"
+            items={project.highlights || []}
+            addLabel="Add highlight"
+            addedMessage="Project highlight added."
+            placeholder="JWT-protected admin dashboard"
+            notify={notify}
+            onChange={(highlights) => onChange(replaceAt(portfolio.projects, index, { ...project, highlights }))}
           />
           <LinksEditor links={project.links} notify={notify} onChange={(links) => onChange(replaceAt(portfolio.projects, index, { ...project, links }))} />
         </EditorCard>
@@ -300,7 +322,7 @@ function EducationEditor({ portfolio, notify, onChange }: { portfolio: Portfolio
 
 function BlogsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; notify: Notify; onChange: (value: Portfolio["blogs"]) => void }) {
   function addBlog() {
-    onChange([...portfolio.blogs, { title: "", date: "", excerpt: "", slug: "", body: "", published: true }]);
+    onChange([...portfolio.blogs, { title: "", date: "", excerpt: "", slug: "", body: "", coverImage: "", metaTitle: "", metaDescription: "", published: true }]);
     notify("Blog section added.");
   }
 
@@ -312,13 +334,49 @@ function BlogsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; no
             <label className="field">Title<input value={blog.title} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, title: event.target.value }))} /></label>
             <label className="field">Date / category<input value={blog.date} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, date: event.target.value }))} /></label>
             <label className="field">Slug<input value={blog.slug || ""} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, slug: event.target.value }))} /></label>
+            <label className="field">Cover image URL<input value={blog.coverImage || ""} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, coverImage: event.target.value }))} /></label>
             <label className="check-field"><input type="checkbox" checked={blog.published !== false} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, published: event.target.checked }))} /> Published</label>
           </div>
           <label className="field">Excerpt<textarea value={blog.excerpt} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, excerpt: event.target.value }))} /></label>
           <label className="field">Body<textarea value={blog.body || ""} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, body: event.target.value }))} /></label>
+          <div className="mini-grid">
+            <label className="field">SEO title<input value={blog.metaTitle || ""} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, metaTitle: event.target.value }))} /></label>
+            <label className="field">SEO description<input value={blog.metaDescription || ""} onChange={(event) => onChange(replaceAt(portfolio.blogs, index, { ...blog, metaDescription: event.target.value }))} /></label>
+          </div>
         </EditorCard>
       ))}
     </RepeatableList>
+  );
+}
+
+function PreviewPanel({ active, portfolio }: { active: Section; portfolio: Portfolio }) {
+  const previewItems = active === "projects"
+    ? portfolio.projects.map((item) => ({ title: item.title, text: item.summary, image: item.imageUrl }))
+    : active === "blogs"
+      ? portfolio.blogs.map((item) => ({ title: item.title, text: item.excerpt, image: item.coverImage }))
+      : [];
+
+  return (
+    <section className="preview-panel">
+      <div className="subhead"><h3>Preview</h3></div>
+      {active === "profile" && <p>{portfolio.profile.headline}</p>}
+      {active === "stats" && <div className="stats">{portfolio.stats.map((item) => <div className="stat" key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}</div>}
+      {active === "stack" && <div className="chips">{portfolio.stack.map((item) => <span className="chip" key={item}>{item}</span>)}</div>}
+      {active === "skills" && <div className="chips">{portfolio.skills.flatMap((group) => group.items).slice(0, 18).map((item) => <span className="chip" key={item}>{item}</span>)}</div>}
+      {active === "experience" && <p>{portfolio.experience[0]?.role || "No experience yet"} {portfolio.experience[0]?.company ? `at ${portfolio.experience[0].company}` : ""}</p>}
+      {active === "education" && <p>{portfolio.education[0]?.title || "No education yet"}</p>}
+      {(active === "projects" || active === "blogs") && (
+        <div className="preview-grid">
+          {previewItems.map((item) => (
+            <article className="preview-card" key={item.title}>
+              {item.image && <img src={item.image} alt="" />}
+              <h4>{item.title || "Untitled"}</h4>
+              <p>{item.text}</p>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
   );
 }
 

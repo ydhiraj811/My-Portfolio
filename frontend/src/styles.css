@@ -42,6 +42,10 @@ textarea {
   font: inherit;
 }
 
+button {
+  color: inherit;
+}
+
 .loading {
   min-height: 100vh;
   display: grid;
@@ -82,6 +86,12 @@ textarea {
   letter-spacing: 0;
 }
 
+.brand-button {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -103,8 +113,18 @@ textarea {
   font-weight: 600;
 }
 
-.nav a:hover {
+.nav a:hover,
+.nav button:hover {
   color: #fff;
+}
+
+.nav button {
+  border: 0;
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  cursor: pointer;
+  font-weight: 600;
 }
 
 .top-actions {
@@ -653,6 +673,15 @@ p {
   padding: 24px;
 }
 
+.card-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: 18px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+
 .project-top {
   display: flex;
   align-items: center;
@@ -680,6 +709,13 @@ p {
 .blog-card {
   display: grid;
   align-content: start;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-3px);
+  border-color: #b6d4c8;
+  box-shadow: 0 16px 36px rgba(15, 28, 24, 0.1);
 }
 
 .blog-date {
@@ -688,6 +724,111 @@ p {
   font-size: 0.82rem;
   font-weight: 800;
   text-transform: uppercase;
+}
+
+.read-more {
+  align-self: end;
+  margin-top: 14px;
+  color: var(--accent);
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.article-shell {
+  background: #f7f8f4;
+}
+
+.article-page {
+  width: min(860px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 132px 0 86px;
+}
+
+.project-page {
+  width: min(1120px, calc(100% - 36px));
+}
+
+.article-cover {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+  margin: 24px 0 26px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 16px 42px rgba(15, 28, 24, 0.1);
+}
+
+.article-kicker {
+  margin: 28px 0 14px;
+  color: var(--accent);
+  font-size: 0.86rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.article-page h1 {
+  margin-bottom: 20px;
+  font-size: clamp(2.25rem, 6vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+}
+
+.article-excerpt {
+  margin-bottom: 34px;
+  color: #4d5b55;
+  font-size: clamp(1.05rem, 2vw, 1.28rem);
+  line-height: 1.75;
+}
+
+.article-body {
+  padding: clamp(22px, 4vw, 42px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 28, 24, 0.06);
+}
+
+.article-body p {
+  margin-bottom: 20px;
+  color: #31423c;
+  font-size: 1.04rem;
+  line-height: 1.86;
+}
+
+.article-body p:last-child {
+  margin-bottom: 0;
+}
+
+.project-detail-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.project-side {
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(15, 28, 24, 0.06);
+}
+
+.project-side h2 {
+  margin: 8px 0 0;
+  font-size: 1rem;
+}
+
+.detail-list {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 18px;
+  color: #40504a;
+  line-height: 1.55;
 }
 
 .social-card {
@@ -1002,6 +1143,46 @@ p {
   height: 18px;
 }
 
+.preview-panel {
+  display: grid;
+  gap: 14px;
+  padding: 18px;
+  border: 1px solid #cfe3d8;
+  border-radius: 8px;
+  background: #f6fbf8;
+}
+
+.preview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.preview-card {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.preview-card img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border-radius: 8px;
+}
+
+.preview-card h4 {
+  margin: 0 0 8px;
+}
+
+.preview-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
 .array-editor textarea {
   min-height: 520px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
@@ -1187,7 +1368,9 @@ p {
 
   .mini-grid,
   .item-row,
-  .item-row.two {
+  .item-row.two,
+  .project-detail-grid,
+  .preview-grid {
     grid-template-columns: 1fr;
   }
 

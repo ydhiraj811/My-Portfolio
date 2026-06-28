@@ -140,10 +140,14 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
         <div className="project-grid">
           {portfolio.projects.map((project) => (
             <article className="project-card" key={project.title}>
+              {project.imageUrl && <img className="card-image" src={project.imageUrl} alt="" />}
               <div className="project-top"><h3>{project.title}</h3><span className="project-year">{project.year}</span></div>
               <p>{project.summary}</p>
               <div className="chips">{project.stack.map((tech) => <span className="chip" key={tech}>{tech}</span>)}</div>
-              <div className="card-actions">{project.links.map((link) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label}</a>)}</div>
+              <div className="card-actions">
+                <a className="btn ghost" href={`#project/${getProjectSlug(project)}`}>View details</a>
+                {project.links.map((link) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label}</a>)}
+              </div>
             </article>
           ))}
         </div>
@@ -156,7 +160,13 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
         </div>
         <div className="blog-grid">
           {portfolio.blogs.filter((blog) => blog.published !== false).map((blog) => (
-            <article className="blog-card" key={blog.title}><div className="blog-date">{blog.date}</div><h3>{blog.title}</h3><p>{blog.excerpt}</p></article>
+            <a className="blog-card" href={`#blog/${getBlogSlug(blog)}`} key={blog.title}>
+              {blog.coverImage && <img className="card-image" src={blog.coverImage} alt="" />}
+              <div className="blog-date">{blog.date}</div>
+              <h3>{blog.title}</h3>
+              <p>{blog.excerpt}</p>
+              <span className="read-more">Read article</span>
+            </a>
           ))}
         </div>
       </section>
@@ -187,4 +197,12 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
 
 function cleanUrl(url = "") {
   return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+}
+
+function getBlogSlug(blog: Portfolio["blogs"][number]) {
+  return blog.slug || blog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+}
+
+function getProjectSlug(project: Portfolio["projects"][number]) {
+  return project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }

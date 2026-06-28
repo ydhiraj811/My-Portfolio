@@ -33,10 +33,16 @@ const portfolioSchema = new Schema({
     projects: [
         {
             title: String,
+            slug: String,
             year: String,
             summary: String,
+            body: String,
+            imageUrl: String,
             stack: [String],
+            highlights: [String],
             links: [linkSchema],
+            metaTitle: String,
+            metaDescription: String,
         },
     ],
     education: [
@@ -54,6 +60,9 @@ const portfolioSchema = new Schema({
             excerpt: String,
             slug: String,
             body: String,
+            coverImage: String,
+            metaTitle: String,
+            metaDescription: String,
             published: { type: Boolean, default: true },
         },
     ],
