@@ -1457,7 +1457,13 @@ p {
   }
 
   .nav {
-    display: none;
+    order: 3;
+    width: 100%;
+    justify-content: flex-start;
+    gap: 14px;
+    overflow-x: auto;
+    padding-top: 8px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .top-actions {
