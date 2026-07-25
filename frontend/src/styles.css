@@ -1724,8 +1724,24 @@ p {
 }
 
 @media (max-width: 420px) {
-  .top-actions .icon-btn {
-    display: none;
+  .brand span:last-child {
+    max-width: 82px;
+  }
+
+  .top-actions {
+    gap: 6px;
+  }
+
+  .icon-btn,
+  .menu-toggle {
+    width: 36px;
+    min-height: 34px;
+  }
+
+  .admin-tab {
+    min-height: 34px;
+    padding: 0 9px;
+    font-size: 0.78rem;
   }
 
   .hero {
