@@ -16,8 +16,10 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
   const [contactStatus, setContactStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [isSending, setIsSending] = useState(false);
+  const [isNavOpen, setIsNavOpen] = useState(false);
 
   const scrollToSection = (id: string) => {
+    setIsNavOpen(false);
     document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
       block: "start",
@@ -52,7 +54,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <span className="brand-mark">DY</span>
           <span>{profile.name.split(" ")[0]}</span>
         </a>
-        <nav className="nav">
+        <nav className={`nav ${isNavOpen ? "open" : ""}`}>
           <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("about");}}>About</a>
 
           <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("skills");}}>Skills</a>
@@ -71,6 +73,17 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <a className="icon-btn" href={profile.github} target="_blank" rel="noreferrer" aria-label="GitHub"><FaGithub size={20}/></a>
           <a className="icon-btn" href={profile.leetcode} target="_blank" rel="noreferrer" aria-label="LeetCode"><SiLeetcode size={20}></SiLeetcode></a>
           <button className="admin-tab" onClick={onAdminClick}>Admin</button>
+          <button
+            className={`menu-toggle ${isNavOpen ? "open" : ""}`}
+            type="button"
+            aria-label={isNavOpen ? "Close navigation menu" : "Open navigation menu"}
+            aria-expanded={isNavOpen}
+            onClick={() => setIsNavOpen((value) => !value)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
         </div>
       </header>
 
