@@ -1,6 +1,9 @@
 import type { Request, Response } from "express";
 import { Portfolio } from "../models/Portfolio.js";
 
+const PORTFOLIO_CACHE_TTL_MS = 60_000;
+let portfolioCache: { expiresAt: number; data: unknown } | null = null;
+
 function slugify(value = "") {
   return value.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }
@@ -14,7 +17,12 @@ async function getPortfolioDocument() {
 }
 
 export async function getPortfolio(_req: Request, res: Response) {
+  if (portfolioCache && portfolioCache.expiresAt > Date.now()) {
+    return res.json(portfolioCache.data);
+  }
+
   const doc = await Portfolio.findOne({}).lean();
+  portfolioCache = { data: doc, expiresAt: Date.now() + PORTFOLIO_CACHE_TTL_MS };
   return res.json(doc);
 }
 
@@ -23,11 +31,13 @@ export async function updatePortfolio(req: Request, res: Response) {
   const current = await Portfolio.findOne({});
   if (!current) {
     const created = await Portfolio.create(payload);
+    refreshPortfolioCache(created);
     return res.status(201).json(created);
   }
 
   current.set(payload);
   await current.save();
+  refreshPortfolioCache(current);
   return res.json(current);
 }
 
@@ -48,6 +58,7 @@ export async function replaceProjects(req: Request, res: Response) {
   const doc = await getPortfolioDocument();
   doc.set("projects", req.body.projects || req.body);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.json(doc);
 }
 
@@ -56,6 +67,7 @@ export async function createProject(req: Request, res: Response) {
   const project = { ...req.body, slug: req.body.slug || slugify(req.body.title) };
   doc.set("projects", [...(doc.get("projects") || []), project]);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.status(201).json(project);
 }
 
@@ -70,6 +82,7 @@ export async function updateProject(req: Request, res: Response) {
   projects[index] = updated;
   doc.set("projects", projects);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.json(updated);
 }
 
@@ -80,6 +93,7 @@ export async function deleteProject(req: Request, res: Response) {
   if (next.length === projects.length) return res.status(404).json({ message: "Project not found" });
   doc.set("projects", next);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.status(204).send();
 }
 
@@ -100,6 +114,7 @@ export async function replaceBlogs(req: Request, res: Response) {
   const doc = await getPortfolioDocument();
   doc.set("blogs", req.body.blogs || req.body);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.json(doc);
 }
 
@@ -108,6 +123,7 @@ export async function createBlog(req: Request, res: Response) {
   const blog = { ...req.body, slug: req.body.slug || slugify(req.body.title) };
   doc.set("blogs", [...(doc.get("blogs") || []), blog]);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.status(201).json(blog);
 }
 
@@ -122,6 +138,7 @@ export async function updateBlog(req: Request, res: Response) {
   blogs[index] = updated;
   doc.set("blogs", blogs);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.json(updated);
 }
 
@@ -132,5 +149,10 @@ export async function deleteBlog(req: Request, res: Response) {
   if (next.length === blogs.length) return res.status(404).json({ message: "Blog not found" });
   doc.set("blogs", next);
   await doc.save();
+  refreshPortfolioCache(doc);
   return res.status(204).send();
+}
+
+function refreshPortfolioCache(data: unknown) {
+  portfolioCache = { data, expiresAt: Date.now() + PORTFOLIO_CACHE_TTL_MS };
 }

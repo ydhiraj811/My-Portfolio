@@ -179,7 +179,7 @@ button.admin-tab {
   overflow: hidden;
   background:
     linear-gradient(90deg, rgba(8, 15, 13, 0.94), rgba(8, 15, 13, 0.74) 39%, rgba(8, 15, 13, 0.18) 73%),
-    url("/assets/hero-workspace.png") center / cover no-repeat;
+    url("/assets/hero-workspace.jpg") center / cover no-repeat;
 }
 
 .hero::after {
@@ -1493,7 +1493,7 @@ p {
     padding: 104px clamp(18px, 5vw, 44px) 44px;
     background:
       linear-gradient(90deg, rgba(8, 15, 13, 0.92), rgba(8, 15, 13, 0.74) 52%, rgba(8, 15, 13, 0.34)),
-      url("/assets/hero-workspace.png") 62% center / cover no-repeat;
+      url("/assets/hero-workspace.jpg") 62% center / cover no-repeat;
   }
 
   .hero::after {
@@ -1567,7 +1567,7 @@ p {
     padding: 94px 18px 40px;
     background:
       linear-gradient(180deg, rgba(8, 15, 13, 0.88), rgba(8, 15, 13, 0.74) 48%, rgba(8, 15, 13, 0.44)),
-      url("/assets/hero-workspace.png") 64% center / cover no-repeat;
+      url("/assets/hero-workspace.jpg") 64% center / cover no-repeat;
   }
 
   .topbar {

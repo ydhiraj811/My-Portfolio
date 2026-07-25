@@ -1,13 +1,15 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { ApiError, api } from "./api/client";
-import { AdminPage } from "./pages/AdminPage";
-import { BlogPage } from "./pages/BlogPage";
 import { PortfolioPage } from "./pages/PortfolioPage";
-import { ProjectPage } from "./pages/ProjectPage";
 import type { ActivityResponse, Portfolio } from "./types/portfolio";
 
+const AdminPage = lazy(() => import("./pages/AdminPage").then((module) => ({ default: module.AdminPage })));
+const BlogPage = lazy(() => import("./pages/BlogPage").then((module) => ({ default: module.BlogPage })));
+const ProjectPage = lazy(() => import("./pages/ProjectPage").then((module) => ({ default: module.ProjectPage })));
+const PORTFOLIO_CACHE_KEY = "portfolio-content-v1";
+
 export function App() {
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null);
+  const [portfolio, setPortfolio] = useState<Portfolio | null>(() => readCachedPortfolio());
   const [activity, setActivity] = useState<ActivityResponse>();
   const [page, setPage] = useState(getPageFromLocation());
   const [token, setToken] = useState("");
@@ -15,8 +17,27 @@ export function App() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    api.getPortfolio().then(setPortfolio).catch((err) => setError(err.message));
-    api.getActivity().then(setActivity).catch(() => undefined);
+    api
+      .getPortfolio()
+      .then((nextPortfolio) => {
+        setPortfolio(nextPortfolio);
+        cachePortfolio(nextPortfolio);
+      })
+      .catch((err) => {
+        if (!portfolio) setError(err.message);
+      });
+
+    const loadActivity = () => {
+      api.getActivity().then(setActivity).catch(() => undefined);
+    };
+
+    if ("requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(loadActivity, { timeout: 2500 });
+      return () => window.cancelIdleCallback(idleId);
+    }
+
+    const timerId = globalThis.setTimeout(loadActivity, 1200);
+    return () => globalThis.clearTimeout(timerId);
   }, []);
 
   useEffect(() => {
@@ -88,18 +109,20 @@ export function App() {
   if (page === "admin") {
     updatePageMeta("Portfolio Admin | Dhiraj Kumar Yadav", "Protected admin dashboard for portfolio content.", false);
     return (
-      <AdminPage
-        portfolio={portfolio}
-        token={token}
-        authMessage={authMessage}
-        onLogin={handleLogin}
-        onSave={handleSectionSave}
-        onLogout={handleLogout}
-        onBack={() => {
-          history.pushState(null, "", "/");
-          setPage("site");
-        }}
-      />
+      <Suspense fallback={<main className="loading">Loading admin...</main>}>
+        <AdminPage
+          portfolio={portfolio}
+          token={token}
+          authMessage={authMessage}
+          onLogin={handleLogin}
+          onSave={handleSectionSave}
+          onLogout={handleLogout}
+          onBack={() => {
+            history.pushState(null, "", "/");
+            setPage("site");
+          }}
+        />
+      </Suspense>
     );
   }
 
@@ -110,19 +133,21 @@ export function App() {
     if (blog) {
       updatePageMeta(blog.metaTitle || blog.title, blog.metaDescription || blog.excerpt);
       return (
-        <BlogPage
-          blog={blog}
-          portfolio={portfolio}
-          onBack={() => {
-            history.pushState(null, "", "/#blog");
-            setPage("site");
-            window.setTimeout(() => document.getElementById("blog")?.scrollIntoView({ behavior: "smooth" }), 0);
-          }}
-          onAdminClick={() => {
-            history.pushState(null, "", "/#admin");
-            setPage("admin");
-          }}
-        />
+        <Suspense fallback={<main className="loading">Loading article...</main>}>
+          <BlogPage
+            blog={blog}
+            portfolio={portfolio}
+            onBack={() => {
+              history.pushState(null, "", "/#blog");
+              setPage("site");
+              window.setTimeout(() => document.getElementById("blog")?.scrollIntoView({ behavior: "smooth" }), 0);
+            }}
+            onAdminClick={() => {
+              history.pushState(null, "", "/#admin");
+              setPage("admin");
+            }}
+          />
+        </Suspense>
       );
     }
   }
@@ -134,19 +159,21 @@ export function App() {
     if (project) {
       updatePageMeta(project.metaTitle || project.title, project.metaDescription || project.summary);
       return (
-        <ProjectPage
-          project={project}
-          portfolio={portfolio}
-          onBack={() => {
-            history.pushState(null, "", "/#projects");
-            setPage("site");
-            window.setTimeout(() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" }), 0);
-          }}
-          onAdminClick={() => {
-            history.pushState(null, "", "/#admin");
-            setPage("admin");
-          }}
-        />
+        <Suspense fallback={<main className="loading">Loading project...</main>}>
+          <ProjectPage
+            project={project}
+            portfolio={portfolio}
+            onBack={() => {
+              history.pushState(null, "", "/#projects");
+              setPage("site");
+              window.setTimeout(() => document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" }), 0);
+            }}
+            onAdminClick={() => {
+              history.pushState(null, "", "/#admin");
+              setPage("admin");
+            }}
+          />
+        </Suspense>
       );
     }
   }
@@ -227,4 +254,21 @@ function setMetaName(name: string, content: string) {
     document.head.appendChild(tag);
   }
   tag.content = content;
+}
+
+function readCachedPortfolio() {
+  try {
+    const cached = localStorage.getItem(PORTFOLIO_CACHE_KEY);
+    return cached ? (JSON.parse(cached) as Portfolio) : null;
+  } catch {
+    return null;
+  }
+}
+
+function cachePortfolio(portfolio: Portfolio) {
+  try {
+    localStorage.setItem(PORTFOLIO_CACHE_KEY, JSON.stringify(portfolio));
+  } catch {
+    // Storage can be unavailable in private browsing or constrained devices.
+  }
 }
