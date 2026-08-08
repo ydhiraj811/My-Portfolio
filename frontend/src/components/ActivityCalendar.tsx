@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { ActivityProvider } from "../types/portfolio";
 
 type Props = {
@@ -6,16 +7,30 @@ type Props = {
 
 export function ActivityCalendar({ activity }: Props) {
   const days = activity.days || [];
+  const heatmapRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (heatmapRef.current) {
+      heatmapRef.current.scrollLeft = heatmapRef.current.scrollWidth;
+    }
+  }, [days]);
 
   return (
     <article className="activity-card">
       <div className="activity-top">
         <div>
-          <span className="activity-label">{activity.source || "live activity"}</span>
+          <span className="activity-label">
+            {activity.source || "live activity"}
+          </span>
           <h3>{activity.provider}</h3>
         </div>
         {activity.profileUrl && (
-          <a className="btn ghost" href={activity.profileUrl} target="_blank" rel="noreferrer">
+          <a
+            className="btn ghost"
+            href={activity.profileUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
             Open profile
           </a>
         )}
@@ -39,12 +54,20 @@ export function ActivityCalendar({ activity }: Props) {
               <span>Best streak</span>
             </div>
             <div>
-              <strong>{activity.totalActiveDays ?? days.filter((day) => day.count > 0).length}</strong>
+              <strong>
+                {activity.totalActiveDays ??
+                  days.filter((day) => day.count > 0).length}
+              </strong>
               <span>Active days</span>
             </div>
           </div>
           {activity.note && <p className="note-copy">{activity.note}</p>}
-          <div className="heatmap" role="img" aria-label={`${activity.provider} consistency calendar`}>
+          <div
+            className="heatmap"
+            ref={heatmapRef}
+            role="img"
+            aria-label={`${activity.provider} consistency calendar`}
+          >
             {days.map((day) => (
               <span
                 className={`heat-cell level-${day.level}`}

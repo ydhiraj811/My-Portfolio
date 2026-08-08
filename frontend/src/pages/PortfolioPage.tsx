@@ -32,9 +32,9 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
     setContactStatus(null);
 
     try {
-      await api.sendContact(contactForm);
+      const result = await api.sendContact(contactForm);
       setContactForm({ name: "", email: "", subject: "", message: "", website: "" });
-      setContactStatus({ type: "success", message: "Message sent. I will get back to you soon." });
+      setContactStatus({ type: "success", message: result.message || "Message received. I will get back to you soon." });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to send message right now.";
       setContactStatus({ type: "error", message });

@@ -33,7 +33,7 @@ export const api = {
   getPortfolio: () => request<Portfolio>("/portfolio"),
   getActivity: () => request<ActivityResponse>("/activity"),
   sendContact: (payload: { name: string; email: string; subject: string; message: string; website?: string }) =>
-    request<{ ok: boolean; message?: string }>("/contact", {
+    request<{ ok: boolean; message?: string; emailSent?: boolean }>("/contact", {
       method: "POST",
       body: JSON.stringify(payload),
     }),

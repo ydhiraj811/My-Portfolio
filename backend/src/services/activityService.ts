@@ -101,7 +101,7 @@ async function getGitHubContributionCalendar() {
     provider: "GitHub",
     username: config.githubUsername,
     profileUrl: `https://github.com/${config.githubUsername}`,
-    source: "github-contributions-caledar",
+    source: "github-contributions-calendar",
     ...summarize(days),
     days,
   };
@@ -123,12 +123,16 @@ async function getGitHubPublicEvents() {
     counts.set(date, (counts.get(date) || 0) + 1);
   }
 
-  const today = new Date();
+  // Build the 365-day window entirely in UTC epoch milliseconds to avoid
+  // local-timezone drift between the generated date key and the actual day.
+  const now = new Date();
+  const todayUTCMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const DAY_MS = 86400000;
+
   const days = normalizeDays(
     Array.from({ length: 365 }, (_, index) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - (364 - index));
-      const key = date.toISOString().slice(0, 10);
+      const dayMs = todayUTCMidnight - (364 - index) * DAY_MS;
+      const key = new Date(dayMs).toISOString().slice(0, 10);
       return { date: key, count: counts.get(key) || 0 };
     }),
   );
@@ -193,16 +197,27 @@ export async function getLeetCodeActivity() {
   }
 
   const calendar = JSON.parse(matchedUser.userCalendar.submissionCalendar || "{}") as Record<string, number>;
-  const today = new Date();
+
+  // LeetCode's submissionCalendar keys are Unix timestamps at UTC midnight
+  // for each day. The previous version used date.setHours(0,0,0,0), which
+  // sets midnight in the SERVER'S LOCAL timezone, not UTC — so for any
+  // timezone offset that isn't a whole multiple of 24h (e.g. UTC+5:30),
+  // every generated key missed every real key in `calendar`, and every day
+  // silently fell back to count: 0. Doing all the math in UTC epoch
+  // milliseconds fixes this regardless of what timezone the server runs in.
+  const now = new Date();
+  const todayUTCMidnight = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const DAY_MS = 86400000;
+
   const days = normalizeDays(
     Array.from({ length: 365 }, (_, index) => {
-      const date = new Date(today);
-      date.setDate(today.getDate() - (364 - index));
-      const key = date.toISOString().slice(0, 10);
-      const unix = Math.floor(date.setHours(0, 0, 0, 0) / 1000).toString();
+      const dayMs = todayUTCMidnight - (364 - index) * DAY_MS;
+      const key = new Date(dayMs).toISOString().slice(0, 10);
+      const unix = Math.floor(dayMs / 1000).toString();
       return { date: key, count: calendar[unix] || 0 };
     }),
   );
+
   const accepted = matchedUser.submitStats?.acSubmissionNum.find((item) => item.difficulty === "All")?.count || 0;
 
   return {
@@ -216,6 +231,5 @@ export async function getLeetCodeActivity() {
     currentStreak: matchedUser.userCalendar.streak,
     bestStreak: summarize(days).bestStreak,
     days,
-
   };
 }
