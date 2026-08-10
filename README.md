@@ -40,6 +40,7 @@ Change them before deploying.
 - Project image URL and blog cover image URL fields.
 - SEO title and SEO description fields for project and blog detail pages.
 - Focused project/blog APIs in addition to the full portfolio update API.
+- test
 
 ## Content APIs
 
