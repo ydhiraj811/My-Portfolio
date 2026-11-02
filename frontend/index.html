@@ -13,8 +13,24 @@
         canonical.rel = "canonical";
         canonical.href = new URL(window.location.pathname, "https://dhiraj-yadav.in").href;
         document.head.appendChild(canonical);
+
+        if (window.location.pathname === "/" && !/^#(?:admin|blog\/|project\/)/.test(window.location.hash)) {
+          const siteName = document.createElement("script");
+          siteName.id = "homepage-structured-data";
+          siteName.type = "application/ld+json";
+          siteName.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "@id": "https://dhiraj-yadav.in/#website",
+            url: "https://dhiraj-yadav.in/",
+            name: "Dhiraj Kumar Yadav",
+            alternateName: "Dhiraj Yadav",
+          });
+          document.head.appendChild(siteName);
+        }
       })();
     </script>
+    <link rel="icon" type="image/x-icon" sizes="48x48" href="/favicon.ico" />
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="alternate" type="text/plain" href="https://dhiraj-yadav.in/llms.txt" />
