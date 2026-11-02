@@ -21,12 +21,18 @@ export async function sendContactMessage(req: Request, res: Response) {
     return res.json({ ok: true });
   }
 
-  const savedMessage = await ContactMessage.create({
-    name: parsed.data.name,
-    email: parsed.data.email,
-    subject: parsed.data.subject,
-    message: parsed.data.message,
-  });
+  let savedMessage;
+  try {
+    savedMessage = await ContactMessage.create({
+      name: parsed.data.name,
+      email: parsed.data.email,
+      subject: parsed.data.subject,
+      message: parsed.data.message,
+    });
+  } catch (error) {
+    console.error("Unable to store contact message", error);
+    return res.status(503).json({ message: "Messages are temporarily unavailable. Please email me directly." });
+  }
 
   if (!isMailConfigured()) {
     return res.json({
@@ -36,20 +42,16 @@ export async function sendContactMessage(req: Request, res: Response) {
     });
   }
 
-  try {
-    await sendContactMail(parsed.data);
-    savedMessage.emailSent = true;
-    savedMessage.mailError = "";
-    await savedMessage.save();
-    return res.json({ ok: true, message: "Message sent successfully", emailSent: true });
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to send message";
-    savedMessage.mailError = message;
-    await savedMessage.save();
-    return res.json({
-      ok: true,
-      message: "Message received successfully",
-      emailSent: false,
+  void sendContactMail(parsed.data)
+    .then(() => savedMessage.updateOne({ emailSent: true, mailError: "" }))
+    .catch(async (error: unknown) => {
+      const message = error instanceof Error ? error.message : "Unable to send message";
+      try {
+        await savedMessage.updateOne({ mailError: message });
+      } catch (saveError) {
+        console.error("Unable to record contact email status", saveError);
+      }
     });
-  }
+
+  return res.json({ ok: true, message: "Message received successfully", emailSent: false });
 }

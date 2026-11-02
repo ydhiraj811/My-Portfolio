@@ -54,7 +54,7 @@ export const defaultContent = {
         "MERN + TypeScript portfolio with dynamic blogs, project showcase, JWT-authenticated admin dashboard, MongoDB-backed content APIs, and chatbot-ready architecture.",
       body:
         "This portfolio is designed as a real product surface, not a static resume page. The backend owns portfolio data in MongoDB, exposes protected APIs for admin updates, and keeps public rendering separate from editing workflows.\n\nThe admin dashboard supports field-based editing for profile content, skills, projects, blogs, and experience. The public side focuses on fast scanning, clear credibility signals, and detailed pages for deeper project reading.",
-      imageUrl: "/assets/hero-workspace.png",
+      imageUrl: "/assets/hero-workspace.jpg",
       stack: ["MongoDB", "Express", "React", "Node.js", "TypeScript", "JWT", "REST APIs"],
       highlights: ["JWT-protected admin dashboard", "MongoDB-backed dynamic content", "Dedicated project and blog pages", "Live coding consistency calendars"],
       links: [{ label: "GitHub", url: "https://github.com/ydhiraj811" }],
@@ -69,7 +69,7 @@ export const defaultContent = {
         "MERN chat app with Socket.io live messaging, online-status updates, JWT authentication, Zustand state management, and end-to-end deployment.",
       body:
         "A full-stack chat application built to practice real-time product flows: authentication, protected conversations, live message delivery, and visible online state.\n\nThe application focuses on clean client state management and resilient user feedback for loading, error, and connection states.",
-      imageUrl: "/assets/hero-workspace.png",
+      imageUrl: "/assets/hero-workspace.jpg",
       stack: ["MongoDB", "Express", "React", "Node.js", "Socket.io", "Zustand", "JWT"],
       highlights: ["Socket.io live messaging", "JWT authentication", "Online user status", "Frontend state management with Zustand"],
       links: [{ label: "GitHub", url: "https://github.com/ydhiraj811" }],
@@ -84,7 +84,7 @@ export const defaultContent = {
         "Leave management platform supporting role-based access control, workflow automation, backup mapping, notifications, and scalable REST APIs.",
       body:
         "Leave On Time was built around operational clarity: employees can apply for leave, managers can review requests, and teams can understand backup and approval flows without manual follow-up.\n\nThe project includes role-based access control, reusable UI modules, and API design for workflows such as approvals, notifications, and skill mapping.",
-      imageUrl: "/assets/hero-workspace.png",
+      imageUrl: "/assets/hero-workspace.jpg",
       stack: ["React.js", "Node.js", "Express.js", "MongoDB", "RBAC", "REST APIs"],
       highlights: ["Role-based leave workflows", "Approval and notification modules", "MongoDB schema design", "Reusable React UI components"],
       links: [{ label: "GitHub", url: "https://github.com/ydhiraj811" }],
@@ -99,7 +99,7 @@ export const defaultContent = {
         "Full-stack legal advisory platform with chatbot-based advisory workflows, CRUD operations, and access controls across multiple resource types.",
       body:
         "LawSathi explores how a legal advisory product can guide users through structured questions, resource management, and controlled access to legal information.\n\nThe project combines full-stack CRUD workflows with chatbot-style interaction patterns and role-aware resource access.",
-      imageUrl: "/assets/hero-workspace.png",
+      imageUrl: "/assets/hero-workspace.jpg",
       stack: ["React.js", "Node.js", "Express.js", "MongoDB", "Chatbot"],
       highlights: ["Chatbot-based advisory flow", "CRUD across multiple resources", "Access-controlled data views", "Full-stack MERN implementation"],
       links: [{ label: "GitHub", url: "https://github.com/ydhiraj811" }],
@@ -130,7 +130,7 @@ export const defaultContent = {
         "API ownership is not only about routes and payloads. It is about debugging habits, observability, and knowing what failure looks like before customers do.",
       body:
         "Owning APIs early taught me that backend work becomes real when someone depends on it in production.\n\nThe useful habits are simple but demanding: understand payload contracts, log the right failure points, review edge cases before deployment, and keep enough operational context to debug quickly when something changes.\n\nThe biggest lesson is that API quality is not only measured by whether a route returns data. It is measured by how calmly the system behaves when inputs, downstream services, or traffic patterns are imperfect.",
-      coverImage: "/assets/hero-workspace.png",
+      coverImage: "/assets/hero-workspace.jpg",
       metaTitle: "What I Learned Owning Production APIs Early",
       metaDescription: "Notes on backend API ownership, observability, debugging, and production reliability from early software engineering work.",
       published: true,
@@ -143,7 +143,7 @@ export const defaultContent = {
         "Leading automation work sharpened the value of readable test code, repeatable decisions, and feedback loops that help teams ship with less drag.",
       body:
         "Automation leadership changes how you look at engineering quality. A flaky test or unclear script does not stay small when a team relies on it every day.\n\nThe work pushed me toward readable automation, review habits, and simple conventions that help people move faster. Good automation should reduce doubt, not create another layer of confusion.\n\nThe best feedback loops are the ones engineers actually trust enough to use before production.",
-      coverImage: "/assets/hero-workspace.png",
+      coverImage: "/assets/hero-workspace.jpg",
       metaTitle: "How Automation Leadership Changed My Engineering Taste",
       metaDescription: "Reflections on test automation leadership, readable scripts, reliable feedback loops, and team engineering quality.",
       published: true,
@@ -156,7 +156,7 @@ export const defaultContent = {
         "Monitoring tools become useful when they translate technical signals into decisions people can make quickly across staging and production.",
       body:
         "Distributed monitoring becomes product work when the dashboard starts shaping decisions. It is not enough to show technical signals; the interface has to help people understand what changed, where to look, and how urgent the issue is.\n\nWorking around monitoring systems made me appreciate the connection between backend services, UI clarity, and operational confidence.\n\nThe better the visibility, the easier it is for teams to act before small issues become customer-facing problems.",
-      coverImage: "/assets/hero-workspace.png",
+      coverImage: "/assets/hero-workspace.jpg",
       metaTitle: "Why Distributed Monitoring Feels Like Product Work",
       metaDescription: "A systems note on distributed monitoring, operational visibility, and turning technical signals into product decisions.",
       published: true,

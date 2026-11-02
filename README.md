@@ -17,6 +17,10 @@ npm run dev
 
 MongoDB must be running locally or `MONGODB_URI` must point to a MongoDB Atlas database.
 
+For Vercel deployments, set `BACKEND_URL` in the frontend project's environment variables to the backend origin (for example, `https://api.example.com`, without `/api`). The `/api/*` function forwards requests to that service. For direct browser-to-backend requests, set `VITE_API_URL` and allow the frontend origin with the backend's `CLIENT_URL` setting.
+
+The portfolio assistant uses Google's Gemini API from the backend. Set `GEMINI_API_KEY` in the backend environment; `GEMINI_MODEL` is optional and defaults to `gemini-3.5-flash-lite` (free-tier quotas apply). Keep the key server-side and never add it to frontend variables. Without a key, the chat endpoint returns a setup message and the contact form remains available. Google's free tier may use submitted content to improve its products.
+
 ## Admin
 
 Default credentials come from `backend/.env`:

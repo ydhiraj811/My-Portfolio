@@ -31,7 +31,7 @@ export function ProjectPage({ project, portfolio, onBack, onAdminClick }: Props)
 
       <article className="article-page project-page">
         <button className="btn ghost" onClick={onBack}>Back to projects</button>
-        {project.imageUrl && <img className="article-cover" src={project.imageUrl} alt="" />}
+        {project.imageUrl && <img className="article-cover" src={optimizePortfolioImage(project.imageUrl)} alt="" decoding="async" />}
         <div className="article-kicker">{project.year}</div>
         <h1>{project.title}</h1>
         <p className="article-excerpt">{project.summary}</p>
@@ -62,6 +62,10 @@ export function ProjectPage({ project, portfolio, onBack, onAdminClick }: Props)
       </article>
     </main>
   );
+}
+
+function optimizePortfolioImage(url: string) {
+  return url === "/assets/hero-workspace.png" ? "/assets/hero-workspace.jpg" : url;
 }
 
 function formatBody(body: string) {

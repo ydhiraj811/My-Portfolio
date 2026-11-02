@@ -29,6 +29,8 @@ const configSchema = z.object({
     SMTP_PASS: z.string().optional().default(""),
     CONTACT_TO_EMAIL: z.string().email().optional(),
     CONTACT_FROM_EMAIL: z.string().email().optional(),
+    GEMINI_API_KEY: z.string().optional().default(""),
+    GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash-lite"),
 });
 const parsed = configSchema.safeParse(process.env);
 if (!parsed.success) {
@@ -58,5 +60,9 @@ export const config = {
         pass: parsed.data.SMTP_PASS,
         toEmail: parsed.data.CONTACT_TO_EMAIL || parsed.data.ADMIN_EMAIL,
         fromEmail: parsed.data.CONTACT_FROM_EMAIL || parsed.data.ADMIN_EMAIL,
+    },
+    gemini: {
+        apiKey: parsed.data.GEMINI_API_KEY,
+        model: parsed.data.GEMINI_MODEL,
     },
 };

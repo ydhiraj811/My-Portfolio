@@ -179,7 +179,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
         <div className="project-grid">
           {portfolio.projects.map((project) => (
             <article className="project-card" key={project.title}>
-              {project.imageUrl && <img className="card-image" src={project.imageUrl} alt="" />}
+              {project.imageUrl && <img className="card-image" src={optimizePortfolioImage(project.imageUrl)} alt="" loading="lazy" decoding="async" />}
               <div className="project-top"><h3>{project.title}</h3><span className="project-year">{project.year}</span></div>
               <p>{project.summary}</p>
               <div className="chips">{project.stack.map((tech) => <span className="chip" key={tech}>{tech}</span>)}</div>
@@ -200,7 +200,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
         <div className="blog-grid">
           {portfolio.blogs.filter((blog) => blog.published !== false).map((blog) => (
             <a className="blog-card" href={`/blog/${getBlogSlug(blog)}`} key={blog.title}>
-              {blog.coverImage && <img className="card-image" src={blog.coverImage} alt="" />}
+              {blog.coverImage && <img className="card-image" src={optimizePortfolioImage(blog.coverImage)} alt="" loading="lazy" decoding="async" />}
               <div className="blog-date">{blog.date}</div>
               <h3>{blog.title}</h3>
               <p>{blog.excerpt}</p>
@@ -250,6 +250,10 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
 
 function cleanUrl(url = "") {
   return url.replace(/^https?:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
+}
+
+function optimizePortfolioImage(url: string) {
+  return url === "/assets/hero-workspace.png" ? "/assets/hero-workspace.jpg" : url;
 }
 
 function getBlogSlug(blog: Portfolio["blogs"][number]) {

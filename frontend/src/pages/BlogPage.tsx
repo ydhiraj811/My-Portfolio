@@ -31,7 +31,7 @@ export function BlogPage({ blog, portfolio, onBack, onAdminClick }: Props) {
 
       <article className="article-page">
         <button className="btn ghost" onClick={onBack}>Back to portfolio</button>
-        {blog.coverImage && <img className="article-cover" src={blog.coverImage} alt="" />}
+        {blog.coverImage && <img className="article-cover" src={optimizePortfolioImage(blog.coverImage)} alt="" decoding="async" />}
         <div className="article-kicker">{blog.date}</div>
         <h1>{blog.title}</h1>
         <p className="article-excerpt">{blog.excerpt}</p>
@@ -43,6 +43,10 @@ export function BlogPage({ blog, portfolio, onBack, onAdminClick }: Props) {
       </article>
     </main>
   );
+}
+
+function optimizePortfolioImage(url: string) {
+  return url === "/assets/hero-workspace.png" ? "/assets/hero-workspace.jpg" : url;
 }
 
 function formatBody(body: string) {

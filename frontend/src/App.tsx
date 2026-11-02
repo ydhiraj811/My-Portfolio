@@ -2,19 +2,20 @@ import { lazy, Suspense, useEffect, useState } from "react";
 import { ApiError, api } from "./api/client";
 import { PortfolioPage } from "./pages/PortfolioPage";
 import type { ActivityResponse, Portfolio } from "./types/portfolio";
+import { defaultContent } from "../../backend/src/utils/defaultContent";
 
 const AdminPage = lazy(() => import("./pages/AdminPage").then((module) => ({ default: module.AdminPage })));
 const BlogPage = lazy(() => import("./pages/BlogPage").then((module) => ({ default: module.BlogPage })));
 const ProjectPage = lazy(() => import("./pages/ProjectPage").then((module) => ({ default: module.ProjectPage })));
+const PortfolioChat = lazy(() => import("./components/PortfolioChat").then((module) => ({ default: module.PortfolioChat })));
 const PORTFOLIO_CACHE_KEY = "portfolio-content-v1";
 
 export function App() {
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(() => readCachedPortfolio());
+  const [portfolio, setPortfolio] = useState<Portfolio>(() => readCachedPortfolio() ?? (defaultContent as Portfolio));
   const [activity, setActivity] = useState<ActivityResponse>();
   const [page, setPage] = useState(getPageFromLocation());
   const [token, setToken] = useState("");
   const [authMessage, setAuthMessage] = useState("");
-  const [error, setError] = useState("");
 
   useEffect(() => {
     api
@@ -23,9 +24,7 @@ export function App() {
         setPortfolio(nextPortfolio);
         cachePortfolio(nextPortfolio);
       })
-      .catch((err) => {
-        if (!portfolio) setError(err.message);
-      });
+      .catch(() => undefined);
 
     const loadActivity = () => {
       api.getActivity().then(setActivity).catch(() => undefined);
@@ -96,14 +95,6 @@ export function App() {
   function handleLogout() {
     setToken("");
     setAuthMessage("Logged out. Please login again to edit.");
-  }
-
-  if (error) {
-    return <main className="loading">{error}</main>;
-  }
-
-  if (!portfolio) {
-    return <main className="loading">Loading portfolio...</main>;
   }
 
   if (page === "admin") {
@@ -179,7 +170,12 @@ export function App() {
   }
 
   updatePageMeta(`${portfolio.profile.name} | ${portfolio.profile.role}`, portfolio.profile.summary);
-  return <PortfolioPage portfolio={portfolio} activity={activity} onAdminClick={() => { history.pushState(null, "", "/#admin"); setPage("admin"); }} />;
+  return (
+    <>
+      <PortfolioPage portfolio={portfolio} activity={activity} onAdminClick={() => { history.pushState(null, "", "/#admin"); setPage("admin"); }} />
+      <Suspense fallback={null}><PortfolioChat /></Suspense>
+    </>
+  );
 }
 
 function getPageFromLocation() {
