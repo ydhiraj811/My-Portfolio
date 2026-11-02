@@ -84,7 +84,7 @@ export async function sendContactMessage(req: Request, res: Response) {
   }
 
   const message = emailSent
-    ? "Message received. An email notification was sent."
+    ? "Message received. The email provider accepted the notification."
     : mailConfigured
       ? "Message saved to the admin inbox, but the email notification failed. Please email me directly."
       : "Message saved to the admin inbox. Email notifications are not configured yet.";

@@ -97,25 +97,25 @@ export function contentSlug(item: { title?: string | null; slug?: string | null 
   return slugify(item.title || "");
 }
 
-function parseOne<S extends z.ZodTypeAny>(
+function parseOne<S extends z.ZodType<{ title: string; slug?: string }>>(
   schema: S,
   value: unknown,
-): z.infer<S> & { title: string; slug: string } {
+): z.output<S> & { title: string; slug: string } {
   const parsed = schema.safeParse(value);
   if (!parsed.success) throw new ContentValidationError(parsed.error.issues[0]?.message || "Invalid content.");
 
-  const normalized = { ...parsed.data, slug: contentSlug(parsed.data) } as z.infer<S> & { title: string; slug: string };
+  const normalized = { ...parsed.data, slug: contentSlug(parsed.data) } as z.output<S> & { title: string; slug: string };
   if (!slugPattern.test(normalized.slug)) {
     throw new ContentValidationError("Title must contain at least one English letter or number to create a URL slug.");
   }
   return normalized;
 }
 
-function parseList<S extends z.ZodTypeAny>(
+function parseList<S extends z.ZodType<{ title: string; slug?: string }>>(
   schema: S,
   value: unknown,
   label: string,
-): Array<z.infer<S> & { title: string; slug: string }> {
+): Array<z.output<S> & { title: string; slug: string }> {
   if (!Array.isArray(value) || value.length > 100) {
     throw new ContentValidationError(`${label} must be an array with no more than 100 items.`);
   }

@@ -30,7 +30,7 @@ export async function sendContactMail(message: ContactMessage) {
     },
   });
 
-  await transporter.sendMail({
+  const result = await transporter.sendMail({
     from: `"Portfolio Contact" <${config.smtp.fromEmail}>`,
     to: config.smtp.toEmail,
     replyTo: `${message.name} <${message.email}>`,
@@ -52,6 +52,16 @@ export async function sendContactMail(message: ContactMessage) {
         <p>${escapeHtml(message.message).replace(/\n/g, "<br />")}</p>
       </div>
     `,
+  });
+
+  console.info("Contact notification accepted by SMTP relay", {
+    host: config.smtp.host,
+    port: config.smtp.port,
+    responseCode: result.responseCode,
+    messageId: result.messageId,
+    relayResponse: result.response,
+    acceptedRecipientCount: result.accepted.length,
+    rejectedRecipientCount: result.rejected.length,
   });
 }
 

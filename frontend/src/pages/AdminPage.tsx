@@ -203,7 +203,7 @@ function MessagesInbox({ token }: { token: string }) {
               <div className="inbox-message-footer">
                 <div>
                   <span className={`delivery-status ${message.emailSent ? "sent" : "not-sent"}`}>
-                    {message.emailSent ? "Email sent" : "Email not sent"}
+                    {message.emailSent ? "Accepted by email relay" : "Email not sent"}
                   </span>
                   {!message.emailSent && (
                     <span className="delivery-error">
