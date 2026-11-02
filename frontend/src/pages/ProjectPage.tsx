@@ -16,7 +16,7 @@ export function ProjectPage({ project, portfolio, onBack, onAdminClick }: Props)
     <main className="site-shell article-shell">
       <header className="topbar">
         <button className="brand brand-button" onClick={onBack} aria-label="Go back to portfolio">
-          <span className="brand-mark">DY</span>
+          <span className="brand-mark"><img src="/assets/brand-mark.png" alt="" aria-hidden="true" /></span>
           <span>{profile.name.split(" ")[0]}</span>
         </button>
         <nav className="nav" aria-label="Project navigation">

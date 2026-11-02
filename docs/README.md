@@ -11,6 +11,7 @@ This documentation describes the current portfolio implementation and its operat
 - [Security and privacy](security.md)
 - [Deployment and configuration](deployment.md)
 - [Operations and troubleshooting](operations.md)
+- [Search appearance and indexing](seo.md)
 
 ## Current Assessment
 

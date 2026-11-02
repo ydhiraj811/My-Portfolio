@@ -53,7 +53,7 @@ export function PortfolioPage({ portfolio, activity, activityError, onAdminClick
     <main className="site-shell">
       <header className="topbar">
         <a className="brand" href="" aria-label="Go to top">
-          <span className="brand-mark">DY</span>
+          <span className="brand-mark"><img src="/assets/brand-mark.png" alt="" aria-hidden="true" /></span>
           <span>{profile.name.split(" ")[0]}</span>
         </a>
         <nav className={`nav ${isNavOpen ? "open" : ""}`} aria-label="Main navigation">
