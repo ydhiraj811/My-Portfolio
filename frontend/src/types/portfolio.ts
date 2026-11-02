@@ -75,3 +75,14 @@ export type ActivityResponse = {
   github: ActivityProvider;
   leetcode: ActivityProvider;
 };
+
+export type ContactMessageRecord = {
+  id: string;
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+  emailSent: boolean;
+  mailError: string;
+  createdAt: string;
+};

@@ -35,11 +35,11 @@ Set these variables in the Render service environment:
 | `LEETCODE_USERNAME` | Optional | Activity account; defaults to `ydhiraj811` |
 | `GEMINI_API_KEY` | Optional | Enables the portfolio assistant |
 | `GEMINI_MODEL` | Optional | Gemini model; defaults to `gemini-3.5-flash-lite` |
-| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | Optional | SMTP delivery for contact submissions |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS` | Optional | SMTP delivery for contact submissions; for Gmail use `smtp.gmail.com`, port `587`, secure `false`, your Gmail address, and a Google App Password |
 | `CONTACT_TO_EMAIL` | Optional | Recipient; falls back to `ADMIN_EMAIL` |
-| `CONTACT_FROM_EMAIL` | Optional | Sender; falls back to `ADMIN_EMAIL` |
+| `CONTACT_FROM_EMAIL` | Optional | Sender; set this to the authenticated Gmail address, otherwise falls back to `ADMIN_EMAIL` |
 
-Only set `CONTACT_TO_EMAIL` and `CONTACT_FROM_EMAIL` to valid email addresses; omit them rather than setting empty values. `SMTP_SECURE` accepts the strings `true` or `false`.
+Set these in the Render backend service's Environment page. `CONTACT_TO_EMAIL` is the mailbox where you want to receive contact form submissions. For Gmail, turn on 2-Step Verification and create an App Password; do not use your normal account password. `SMTP_SECURE` accepts the strings `true` or `false`.
 
 ## Vercel Frontend
 

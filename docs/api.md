@@ -48,6 +48,7 @@ Protected routes require `Authorization: Bearer <JWT>`. Login tokens expire afte
 | Method | Path | Access | Purpose |
 | --- | --- | --- | --- |
 | `GET` | `/activity` | Public | GitHub and LeetCode activity summaries |
+| `GET` | `/contact/messages` | Admin | Lists the latest 100 contact messages and delivery statuses; responses are not cached |
 | `POST` | `/contact` | Public | Validates and stores a contact submission, then attempts configured SMTP delivery |
 | `POST` | `/chat` | Public | Generates a portfolio answer using Gemini; accepts 1-10 messages, each up to 1,000 characters |
 
@@ -63,7 +64,7 @@ Protected routes require `Authorization: Bearer <JWT>`. Login tokens expire afte
 }
 ```
 
-The `website` field is a honeypot. A successful HTTP response confirms that the message was accepted for storage; it does not prove that the asynchronous email was delivered. There is currently no public message-list endpoint or admin inbox.
+The `website` field is a honeypot. A successful response includes `emailSent`; submissions remain stored even if email delivery is not configured or fails. Messages are visible only through the authenticated admin inbox and the API does not expose them publicly.
 
 ## Error Behavior
 

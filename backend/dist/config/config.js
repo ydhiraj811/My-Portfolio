@@ -27,8 +27,8 @@ const configSchema = z.object({
     SMTP_SECURE: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
     SMTP_USER: z.string().optional().default(""),
     SMTP_PASS: z.string().optional().default(""),
-    CONTACT_TO_EMAIL: z.string().email().optional(),
-    CONTACT_FROM_EMAIL: z.string().email().optional(),
+    CONTACT_TO_EMAIL: z.string().trim().optional().default("").refine((value) => !value || z.string().email().safeParse(value).success, "CONTACT_TO_EMAIL must be a valid email when set"),
+    CONTACT_FROM_EMAIL: z.string().trim().optional().default("").refine((value) => !value || z.string().email().safeParse(value).success, "CONTACT_FROM_EMAIL must be a valid email when set"),
     GEMINI_API_KEY: z.string().optional().default(""),
     GEMINI_MODEL: z.string().min(1).default("gemini-3.5-flash-lite"),
 });

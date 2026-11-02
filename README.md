@@ -42,10 +42,15 @@ Change them before deploying.
 
 - JWT login with logout and expired-session handling.
 - Field-based editors for profile, stats, stack, skills, experience, projects, education, and blogs.
+- Protected contact inbox for the latest 100 MongoDB-stored messages, with reply links and email delivery status.
 - Preview mode before saving.
 - Project image URL and blog cover image URL fields.
 - SEO title and SEO description fields for project and blog detail pages.
 - Focused project/blog APIs in addition to the full portfolio update API.
+
+## Contact Email Notifications
+
+Contact form submissions are stored in MongoDB and appear in the admin dashboard under **Messages**. To receive Gmail notifications, configure the Render backend with `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`, `SMTP_USER` set to the sending Gmail address, `SMTP_PASS` set to a Google App Password, `CONTACT_FROM_EMAIL` set to that same Gmail address, and `CONTACT_TO_EMAIL` set to the inbox that should receive messages. Never use your normal Google password or commit the App Password. Google requires 2-Step Verification to create an App Password; see [Google's instructions](https://support.google.com/mail/answer/185833?hl=en).
 
 ## Engineering Documentation
 

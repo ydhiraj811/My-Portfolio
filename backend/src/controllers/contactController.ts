@@ -18,6 +18,28 @@ export const limitContactMessages = createRateLimiter({
   message: "Too many messages were sent from this connection. Please try again later.",
 });
 
+export async function getContactMessages(_req: Request, res: Response) {
+  res.setHeader("Cache-Control", "no-store");
+  const records = await ContactMessage.find()
+    .select("name email subject message emailSent mailError createdAt")
+    .sort({ createdAt: -1 })
+    .limit(100)
+    .lean();
+
+  return res.json({
+    messages: records.map((record) => ({
+      id: record._id.toString(),
+      name: record.name,
+      email: record.email,
+      subject: record.subject,
+      message: record.message,
+      emailSent: Boolean(record.emailSent),
+      mailError: record.mailError || "",
+      createdAt: record.createdAt.toISOString(),
+    })),
+  });
+}
+
 export async function sendContactMessage(req: Request, res: Response) {
   const parsed = contactSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -41,24 +63,31 @@ export async function sendContactMessage(req: Request, res: Response) {
     return res.status(503).json({ message: "Messages are temporarily unavailable. Please email me directly." });
   }
 
-  if (!isMailConfigured()) {
-    return res.json({
-      ok: true,
-      message: "Message received successfully",
-      emailSent: false,
-    });
+  const mailConfigured = isMailConfigured();
+  let emailSent = false;
+  let mailError = "";
+
+  if (mailConfigured) {
+    try {
+      await sendContactMail(parsed.data);
+      emailSent = true;
+    } catch (error: unknown) {
+      mailError = error instanceof Error ? error.message : "Unable to send email notification";
+      console.error("Unable to send contact email", mailError);
+    }
   }
 
-  void sendContactMail(parsed.data)
-    .then(() => savedMessage.updateOne({ emailSent: true, mailError: "" }))
-    .catch(async (error: unknown) => {
-      const message = error instanceof Error ? error.message : "Unable to send message";
-      try {
-        await savedMessage.updateOne({ mailError: message });
-      } catch (saveError) {
-        console.error("Unable to record contact email status", saveError);
-      }
-    });
+  try {
+    await savedMessage.updateOne({ emailSent, mailError });
+  } catch (error) {
+    console.error("Unable to record contact email status", error);
+  }
 
-  return res.json({ ok: true, message: "Message received successfully", emailSent: false });
+  const message = emailSent
+    ? "Message received. An email notification was sent."
+    : mailConfigured
+      ? "Message saved to the admin inbox, but the email notification failed. Please email me directly."
+      : "Message saved to the admin inbox. Email notifications are not configured yet.";
+
+  return res.json({ ok: true, message, emailSent });
 }

@@ -16,7 +16,7 @@ type Props = {
 export function PortfolioPage({ portfolio, activity, activityError, onAdminClick }: Props) {
   const { profile } = portfolio;
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
-  const [contactStatus, setContactStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [contactStatus, setContactStatus] = useState<{ type: "success" | "warning" | "error"; message: string } | null>(null);
   const [isSending, setIsSending] = useState(false);
   const [isNavOpen, setIsNavOpen] = useState(false);
 
@@ -36,7 +36,10 @@ export function PortfolioPage({ portfolio, activity, activityError, onAdminClick
     try {
       const result = await api.sendContact(contactForm);
       setContactForm({ name: "", email: "", subject: "", message: "", website: "" });
-      setContactStatus({ type: "success", message: result.message || "Message received. I will get back to you soon." });
+      setContactStatus({
+        type: result.emailSent ? "success" : "warning",
+        message: result.message || "Message received. I will get back to you soon.",
+      });
     } catch (error) {
       const message = error instanceof Error ? error.message : "Unable to send message right now.";
       setContactStatus({ type: "error", message });

@@ -1,4 +1,4 @@
-import type { ActivityResponse, Portfolio } from "../types/portfolio";
+import type { ActivityResponse, ContactMessageRecord, Portfolio } from "../types/portfolio";
 
 const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? "http://localhost:5001/api" : "/api");
 
@@ -56,11 +56,14 @@ export const api = {
     headers: { Authorization: `Bearer ${token}` },
   }),
   getActivity: () => request<ActivityResponse>("/activity", {}, 20_000),
+  getContactMessages: (token: string) => request<{ messages: ContactMessageRecord[] }>("/contact/messages", {
+    headers: { Authorization: `Bearer ${token}` },
+  }),
   sendContact: (payload: { name: string; email: string; subject: string; message: string; website?: string }) =>
     request<{ ok: boolean; message?: string; emailSent?: boolean }>("/contact", {
       method: "POST",
       body: JSON.stringify(payload),
-    }),
+    }, 45_000),
   askAssistant: (messages: Array<{ role: "user" | "assistant"; content: string }>) =>
     request<{ reply: string }>("/chat", {
       method: "POST",

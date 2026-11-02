@@ -1043,6 +1043,12 @@ p {
   border: 1px solid rgba(141, 213, 198, 0.45);
 }
 
+.contact-status.warning {
+  color: #fff1cf;
+  background: rgba(122, 84, 24, 0.48);
+  border: 1px solid rgba(240, 190, 90, 0.45);
+}
+
 .contact-status.error {
   color: #ffe8e2;
   background: rgba(143, 46, 37, 0.55);
@@ -1188,6 +1194,105 @@ p {
   color: #8f2e25;
   background: #fff1ed;
   border: 1px solid #efc7bf;
+}
+
+.inbox-panel {
+  display: grid;
+  gap: 18px;
+}
+
+.inbox-header,
+.inbox-message-heading,
+.inbox-message-footer {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.inbox-header {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.inbox-header h2,
+.inbox-header p,
+.inbox-message-heading h3,
+.inbox-message-heading p {
+  margin: 0;
+}
+
+.inbox-header h2 {
+  margin-top: 6px;
+  font-size: 1.7rem;
+}
+
+.inbox-header p,
+.inbox-message-heading p,
+.inbox-message-heading time {
+  color: var(--muted);
+}
+
+.inbox-list {
+  display: grid;
+}
+
+.inbox-message {
+  display: grid;
+  gap: 14px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.inbox-message:first-child {
+  padding-top: 0;
+}
+
+.inbox-message-heading h3 {
+  margin-bottom: 5px;
+  overflow-wrap: anywhere;
+}
+
+.inbox-message-heading a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.inbox-message-heading time {
+  flex: 0 0 auto;
+  font-size: 0.88rem;
+}
+
+.inbox-message-body {
+  margin: 0;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.inbox-message-footer > div {
+  display: grid;
+  gap: 5px;
+}
+
+.delivery-status {
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.delivery-status.sent {
+  color: #145845;
+}
+
+.delivery-status.not-sent,
+.delivery-error {
+  color: #8f2e25;
+}
+
+.delivery-error,
+.inbox-empty {
+  overflow-wrap: anywhere;
 }
 
 .form-section {
@@ -1738,6 +1843,18 @@ p {
 
   .admin-actions {
     justify-content: flex-start;
+  }
+
+  .inbox-header,
+  .inbox-message-heading,
+  .inbox-message-footer {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .inbox-header > .btn,
+  .inbox-message-footer > .btn {
+    align-self: flex-start;
   }
 }
 

@@ -1,5 +1,6 @@
 import { FormEvent, ReactNode, useEffect, useState } from "react";
-import type { Link, Portfolio } from "../types/portfolio";
+import { api } from "../api/client";
+import type { ContactMessageRecord, Link, Portfolio } from "../types/portfolio";
 
 type Props = {
   portfolio: Portfolio;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 type Section = "profile" | "stats" | "stack" | "skills" | "experience" | "projects" | "education" | "blogs";
+type AdminTab = Section | "messages";
 type Notify = (message: string, type?: "success" | "error") => void;
 
 const sections: Section[] = ["profile", "stats", "stack", "skills", "experience", "projects", "education", "blogs"];
@@ -20,7 +22,7 @@ let notifyTimer: number | undefined;
 export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onLogout, onBack }: Props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [active, setActive] = useState<Section>("profile");
+  const [active, setActive] = useState<AdminTab>("profile");
   const [draft, setDraft] = useState<Portfolio>(portfolio);
   const [message, setMessage] = useState("");
   const [messageType, setMessageType] = useState<"success" | "error">("success");
@@ -43,6 +45,7 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onLo
 
   async function handleSave(event: FormEvent) {
     event.preventDefault();
+    if (active === "messages") return;
     try {
       await onSave(active, draft);
       notify(`${sectionTitle(active)} saved to MongoDB.`);
@@ -103,37 +106,124 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onLo
               {titleCase(section)}
             </button>
           ))}
+          <button className={active === "messages" ? "active" : ""} onClick={() => setActive("messages")}>
+            Messages
+          </button>
         </nav>
 
-        <form className="editor-panel admin-form" onSubmit={handleSave}>
-          {message && <div className={`admin-alert ${messageType}`}>{message}</div>}
-          <div className="editor-title">
-            <div>
-              <span className="section-label">{titleCase(active)}</span>
-              <h2>{sectionTitle(active)}</h2>
+        {active === "messages" ? (
+          <MessagesInbox token={token} />
+        ) : (
+          <form className="editor-panel admin-form" onSubmit={handleSave}>
+            {message && <div className={`admin-alert ${messageType}`}>{message}</div>}
+            <div className="editor-title">
+              <div>
+                <span className="section-label">{titleCase(active)}</span>
+                <h2>{sectionTitle(active)}</h2>
+              </div>
+              <button className="btn primary" type="submit">Save changes</button>
             </div>
-            <button className="btn primary" type="submit">Save changes</button>
-          </div>
 
-          {active === "profile" && <ProfileEditor portfolio={draft} updateProfile={updateProfile} />}
-          {active === "stats" && <StatsEditor portfolio={draft} notify={notify} onChange={(stats) => updateArray("stats", stats)} />}
-          {active === "stack" && <StackEditor portfolio={draft} notify={notify} onChange={(stack) => updateArray("stack", stack)} />}
-          {active === "skills" && <SkillsEditor portfolio={draft} notify={notify} onChange={(skills) => updateArray("skills", skills)} />}
-          {active === "experience" && <ExperienceEditor portfolio={draft} notify={notify} onChange={(experience) => updateArray("experience", experience)} />}
-          {active === "projects" && <ProjectsEditor portfolio={draft} notify={notify} onChange={(projects) => updateArray("projects", projects)} />}
-          {active === "education" && <EducationEditor portfolio={draft} notify={notify} onChange={(education) => updateArray("education", education)} />}
-          {active === "blogs" && <BlogsEditor portfolio={draft} notify={notify} onChange={(blogs) => updateArray("blogs", blogs)} />}
+            {active === "profile" && <ProfileEditor portfolio={draft} updateProfile={updateProfile} />}
+            {active === "stats" && <StatsEditor portfolio={draft} notify={notify} onChange={(stats) => updateArray("stats", stats)} />}
+            {active === "stack" && <StackEditor portfolio={draft} notify={notify} onChange={(stack) => updateArray("stack", stack)} />}
+            {active === "skills" && <SkillsEditor portfolio={draft} notify={notify} onChange={(skills) => updateArray("skills", skills)} />}
+            {active === "experience" && <ExperienceEditor portfolio={draft} notify={notify} onChange={(experience) => updateArray("experience", experience)} />}
+            {active === "projects" && <ProjectsEditor portfolio={draft} notify={notify} onChange={(projects) => updateArray("projects", projects)} />}
+            {active === "education" && <EducationEditor portfolio={draft} notify={notify} onChange={(education) => updateArray("education", education)} />}
+            {active === "blogs" && <BlogsEditor portfolio={draft} notify={notify} onChange={(blogs) => updateArray("blogs", blogs)} />}
 
-          {previewOpen && <PreviewPanel active={active} portfolio={draft} />}
+            {previewOpen && <PreviewPanel active={active} portfolio={draft} />}
 
-          <div className="save-row">
-            <span className={`status ${messageType}`}>{message || "Unsaved edits stay on this screen until you save."}</span>
-            <button className="btn primary" type="submit">Save changes</button>
-          </div>
-        </form>
+            <div className="save-row">
+              <span className={`status ${messageType}`}>{message || "Unsaved edits stay on this screen until you save."}</span>
+              <button className="btn primary" type="submit">Save changes</button>
+            </div>
+          </form>
+        )}
       </section>
     </main>
   );
+}
+
+function MessagesInbox({ token }: { token: string }) {
+  const [messages, setMessages] = useState<ContactMessageRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
+
+  useEffect(() => {
+    let isCurrent = true;
+    setIsLoading(true);
+    setError("");
+
+    api.getContactMessages(token)
+      .then((result) => {
+        if (isCurrent) setMessages(result.messages);
+      })
+      .catch((requestError: unknown) => {
+        if (isCurrent) setError(requestError instanceof Error ? requestError.message : "Unable to load messages.");
+      })
+      .finally(() => {
+        if (isCurrent) setIsLoading(false);
+      });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [token, refreshKey]);
+
+  return (
+    <section className="editor-panel inbox-panel" aria-labelledby="inbox-title">
+      <div className="inbox-header">
+        <div>
+          <span className="section-label">Messages</span>
+          <h2 id="inbox-title">Contact inbox</h2>
+          <p>Newest contact form submissions, stored in MongoDB.</p>
+        </div>
+        <button className="btn" type="button" onClick={() => setRefreshKey((current) => current + 1)}>Refresh</button>
+      </div>
+
+      {isLoading && <p role="status">Loading messages...</p>}
+      {error && <p className="admin-alert error" role="alert">{error}</p>}
+      {!isLoading && !error && messages.length === 0 && <p className="inbox-empty">No messages yet.</p>}
+
+      {!isLoading && !error && messages.length > 0 && (
+        <div className="inbox-list">
+          {messages.map((message) => (
+            <article className="inbox-message" key={message.id}>
+              <div className="inbox-message-heading">
+                <div>
+                  <h3>{message.subject}</h3>
+                  <p>{message.name} · <a href={`mailto:${message.email}`}>{message.email}</a></p>
+                </div>
+                <time dateTime={message.createdAt}>{formatMessageDate(message.createdAt)}</time>
+              </div>
+              <p className="inbox-message-body">{message.message}</p>
+              <div className="inbox-message-footer">
+                <div>
+                  <span className={`delivery-status ${message.emailSent ? "sent" : "not-sent"}`}>
+                    {message.emailSent ? "Email sent" : "Email not sent"}
+                  </span>
+                  {!message.emailSent && (
+                    <span className="delivery-error">
+                      {message.mailError || "Configure Gmail SMTP on Render to receive notifications."}
+                    </span>
+                  )}
+                </div>
+                <a className="btn" href={`mailto:${message.email}?subject=${encodeURIComponent(`Re: ${message.subject}`)}`}>Reply by email</a>
+              </div>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function formatMessageDate(value: string) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value : new Intl.DateTimeFormat(undefined, { dateStyle: "medium", timeStyle: "short" }).format(date);
 }
 
 function ProfileEditor({ portfolio, updateProfile }: { portfolio: Portfolio; updateProfile: (key: keyof Portfolio["profile"], value: string) => void }) {
