@@ -60,6 +60,8 @@ export function App() {
   }, []);
 
   useEffect(() => {
+    updateStructuredData(page, portfolio);
+
     if (page === "admin") {
       updatePageMeta("Portfolio Admin | Dhiraj Kumar Yadav", "Protected admin dashboard for portfolio content.", false);
       return;
@@ -289,6 +291,87 @@ function updatePageMeta(title: string, description: string, indexable = true) {
   setMetaProperty("og:url", canonicalTag.href);
   setMetaName("twitter:title", title);
   setMetaName("twitter:description", description);
+}
+
+function updateStructuredData(page: string, portfolio: Portfolio) {
+  const scriptId = "homepage-structured-data";
+  let script = document.getElementById(scriptId) as HTMLScriptElement | null;
+
+  if (page !== "site") {
+    script?.remove();
+    return;
+  }
+
+  if (!script) {
+    script = document.createElement("script");
+    script.id = scriptId;
+    script.type = "application/ld+json";
+    document.head.appendChild(script);
+  }
+
+  const siteUrl = "https://dhiraj-yadav.in/";
+  const personId = `${siteUrl}#person`;
+  const websiteId = `${siteUrl}#website`;
+  const skills = [...new Set([...portfolio.stack, ...portfolio.skills.flatMap((group) => group.items)])];
+  const person = {
+    "@type": "Person",
+    "@id": personId,
+    name: portfolio.profile.name,
+    alternateName: ["Dhiraj Yadav", "ydhiraj811"],
+    url: siteUrl,
+    image: `${siteUrl}assets/hero-workspace.jpg`,
+    jobTitle: portfolio.profile.role,
+    description: portfolio.profile.summary,
+    email: portfolio.profile.email ? `mailto:${portfolio.profile.email}` : undefined,
+    address: {
+      "@type": "PostalAddress",
+      addressLocality: portfolio.profile.location || "New Delhi",
+      addressCountry: "IN",
+    },
+    sameAs: [portfolio.profile.github, portfolio.profile.linkedin, portfolio.profile.leetcode].filter(Boolean),
+    knowsAbout: skills,
+    hasOccupation: {
+      "@type": "Occupation",
+      name: portfolio.profile.role,
+      skills: skills.join(", "),
+    },
+  };
+
+  script.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      person,
+      {
+        "@type": "WebSite",
+        "@id": websiteId,
+        url: siteUrl,
+        name: portfolio.profile.name,
+        alternateName: "Dhiraj Yadav",
+        publisher: { "@id": personId },
+        inLanguage: "en",
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": `${siteUrl}#profile`,
+        url: siteUrl,
+        name: `${portfolio.profile.name} - ${portfolio.profile.role} Portfolio`,
+        about: { "@id": personId },
+        mainEntity: person,
+        isPartOf: { "@id": websiteId },
+      },
+      {
+        "@type": "ItemList",
+        "@id": `${siteUrl}#projects`,
+        name: `${portfolio.profile.name} Projects`,
+        itemListElement: portfolio.projects.map((project, index) => ({
+          "@type": "ListItem",
+          position: index + 1,
+          name: project.title,
+          url: `${siteUrl}project/${contentSlug(project)}`,
+        })),
+      },
+    ],
+  });
 }
 
 function setMetaProperty(property: string, content: string) {
