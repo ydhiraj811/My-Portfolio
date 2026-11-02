@@ -21,6 +21,9 @@ export async function sendContactMail(message: ContactMessage) {
     host: config.smtp.host,
     port: config.smtp.port,
     secure: config.smtp.secure,
+    connectionTimeout: 10_000,
+    greetingTimeout: 10_000,
+    socketTimeout: 20_000,
     auth: {
       user: config.smtp.user,
       pass: config.smtp.pass,

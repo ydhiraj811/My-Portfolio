@@ -7,6 +7,7 @@ export interface AuthedRequest extends Request {
 }
 
 export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
+  res.setHeader("Cache-Control", "no-store");
   const header = req.headers.authorization;
   const token = header?.startsWith("Bearer ") ? header.slice(7) : "";
 

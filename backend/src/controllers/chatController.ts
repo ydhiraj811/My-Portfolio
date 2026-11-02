@@ -1,8 +1,9 @@
-import type { NextFunction, Request, Response } from "express";
+import type { Request, Response } from "express";
 import { z } from "zod";
 import { config } from "../config/config.js";
 import { Portfolio } from "../models/Portfolio.js";
 import { ChatServiceError, generatePortfolioReply } from "../services/chatService.js";
+import { createRateLimiter } from "../middleware/rateLimit.js";
 
 const chatSchema = z.object({
   messages: z.array(z.object({
@@ -11,31 +12,11 @@ const chatSchema = z.object({
   })).min(1).max(10),
 });
 
-const requestWindows = new Map<string, { count: number; expiresAt: number }>();
-const rateLimit = 30;
-const rateWindowMs = 60_000;
-
-export function limitChatRequests(req: Request, res: Response, next: NextFunction) {
-  const now = Date.now();
-  const key = req.ip || "unknown";
-  const window = requestWindows.get(key);
-
-  if (!window || window.expiresAt <= now) {
-    requestWindows.set(key, { count: 1, expiresAt: now + rateWindowMs });
-  } else if (window.count >= rateLimit) {
-    return res.status(429).json({ message: "Please wait a moment before sending another message." });
-  } else {
-    window.count += 1;
-  }
-
-  if (requestWindows.size > 1000) {
-    for (const [client, entry] of requestWindows) {
-      if (entry.expiresAt <= now) requestWindows.delete(client);
-    }
-  }
-
-  return next();
-}
+export const limitChatRequests = createRateLimiter({
+  limit: 30,
+  windowMs: 60_000,
+  message: "Please wait a moment before sending another message.",
+});
 
 export async function postChatMessage(req: Request, res: Response) {
   if (!config.gemini.apiKey) {

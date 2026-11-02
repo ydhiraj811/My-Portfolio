@@ -841,6 +841,16 @@ p {
   line-height: 1.86;
 }
 
+.article-body a {
+  color: var(--accent);
+  font-weight: 650;
+  text-underline-offset: 0.18em;
+}
+
+.article-body a:hover {
+  color: #15584f;
+}
+
 .article-body p:last-child {
   margin-bottom: 0;
 }

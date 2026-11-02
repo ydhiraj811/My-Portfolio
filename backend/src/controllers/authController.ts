@@ -4,11 +4,17 @@ import jwt from "jsonwebtoken";
 import { z } from "zod";
 import { config } from "../config/config.js";
 import { Admin } from "../models/Admin.js";
-import { email } from "zod/v4";
+import { createRateLimiter } from "../middleware/rateLimit.js";
 
 const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
+  email: z.string().trim().email().max(254),
+  password: z.string().min(1).max(256),
+});
+
+export const limitLoginAttempts = createRateLimiter({
+  limit: 10,
+  windowMs: 15 * 60_000,
+  message: "Too many sign-in attempts. Please wait before trying again.",
 });
 
 export async function login(req: Request, res: Response) {

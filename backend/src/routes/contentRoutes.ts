@@ -6,6 +6,7 @@ import {
   deleteProject,
   getBlogBySlug,
   getBlogs,
+  getAdminPortfolio,
   getPortfolio,
   getProjectBySlug,
   getProjects,
@@ -16,22 +17,24 @@ import {
   updateProject,
 } from "../controllers/contentController.js";
 import { requireAuth } from "../middleware/auth.js";
+import { asyncHandler } from "../middleware/asyncHandler.js";
 
 export const contentRoutes = Router();
 
-contentRoutes.get("/", getPortfolio);
-contentRoutes.put("/", requireAuth, updatePortfolio);
+contentRoutes.get("/", asyncHandler(getPortfolio));
+contentRoutes.get("/admin", requireAuth, asyncHandler(getAdminPortfolio));
+contentRoutes.put("/", requireAuth, asyncHandler(updatePortfolio));
 
-contentRoutes.get("/projects", getProjects);
-contentRoutes.get("/projects/:slug", getProjectBySlug);
-contentRoutes.put("/projects", requireAuth, replaceProjects);
-contentRoutes.post("/projects", requireAuth, createProject);
-contentRoutes.put("/projects/:slug", requireAuth, updateProject);
-contentRoutes.delete("/projects/:slug", requireAuth, deleteProject);
+contentRoutes.get("/projects", asyncHandler(getProjects));
+contentRoutes.get("/projects/:slug", asyncHandler(getProjectBySlug));
+contentRoutes.put("/projects", requireAuth, asyncHandler(replaceProjects));
+contentRoutes.post("/projects", requireAuth, asyncHandler(createProject));
+contentRoutes.put("/projects/:slug", requireAuth, asyncHandler(updateProject));
+contentRoutes.delete("/projects/:slug", requireAuth, asyncHandler(deleteProject));
 
-contentRoutes.get("/blogs", getBlogs);
-contentRoutes.get("/blogs/:slug", getBlogBySlug);
-contentRoutes.put("/blogs", requireAuth, replaceBlogs);
-contentRoutes.post("/blogs", requireAuth, createBlog);
-contentRoutes.put("/blogs/:slug", requireAuth, updateBlog);
-contentRoutes.delete("/blogs/:slug", requireAuth, deleteBlog);
+contentRoutes.get("/blogs", asyncHandler(getBlogs));
+contentRoutes.get("/blogs/:slug", asyncHandler(getBlogBySlug));
+contentRoutes.put("/blogs", requireAuth, asyncHandler(replaceBlogs));
+contentRoutes.post("/blogs", requireAuth, asyncHandler(createBlog));
+contentRoutes.put("/blogs/:slug", requireAuth, asyncHandler(updateBlog));
+contentRoutes.delete("/blogs/:slug", requireAuth, asyncHandler(deleteBlog));

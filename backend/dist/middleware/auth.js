@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { config } from "../config/config.js";
 export function requireAuth(req, res, next) {
+    res.setHeader("Cache-Control", "no-store");
     const header = req.headers.authorization;
     const token = header?.startsWith("Bearer ") ? header.slice(7) : "";
     if (!token) {

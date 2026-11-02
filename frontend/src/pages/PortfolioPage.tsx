@@ -4,14 +4,16 @@ import {FaGithub} from "react-icons/fa"
 import { SiLeetcode } from "react-icons/si";
 import { FormEvent, useState } from "react";
 import { api } from "../api/client";
+import { contentSlug } from "../utils/contentSlug";
 
 type Props = {
   portfolio: Portfolio;
   activity?: ActivityResponse;
+  activityError?: string;
   onAdminClick: () => void;
 };
 
-export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
+export function PortfolioPage({ portfolio, activity, activityError, onAdminClick }: Props) {
   const { profile } = portfolio;
   const [contactForm, setContactForm] = useState({ name: "", email: "", subject: "", message: "", website: "" });
   const [contactStatus, setContactStatus] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -54,7 +56,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <span className="brand-mark">DY</span>
           <span>{profile.name.split(" ")[0]}</span>
         </a>
-        <nav className={`nav ${isNavOpen ? "open" : ""}`}>
+        <nav className={`nav ${isNavOpen ? "open" : ""}`} aria-label="Main navigation">
           <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("about");}}>About</a>
 
           <a href="/" onClick={(e) => {e.preventDefault(); scrollToSection("skills");}}>Skills</a>
@@ -109,7 +111,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <article className="panel">
             <p className="about-copy">{profile.about}</p>
             <div className="stats">
-              {portfolio.stats.map((item) => <div className="stat" key={item.label}><strong>{item.value}</strong><span>{item.label}</span></div>)}
+              {portfolio.stats.map((item, index) => <div className="stat" key={`${item.label}-${index}`}><strong>{item.value}</strong><span>{item.label}</span></div>)}
             </div>
           </article>
           <aside className="panel">
@@ -130,8 +132,8 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           
         </div>
         <div className="skill-wrap">
-          {portfolio.skills.map((group) => (
-            <article className="skill-group" key={group.title}>
+          {portfolio.skills.map((group, index) => (
+            <article className="skill-group" key={`${group.title}-${index}`}>
               <h3>{group.title}</h3>
               <div className="chips">{group.items.map((item) => <span className="chip" key={item}>{item}</span>)}</div>
             </article>
@@ -149,6 +151,11 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
               <ActivityCalendar activity={activity.github} />
               <ActivityCalendar activity={activity.leetcode} />
             </>
+          ) : activityError ? (
+            <>
+              <ActivityCalendar activity={{ provider: "GitHub", error: activityError }} />
+              <ActivityCalendar activity={{ provider: "LeetCode", error: activityError }} />
+            </>
           ) : (
             <p className="panel">Loading live activity...</p>
           )}
@@ -161,8 +168,8 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
           <p>Recent work includes API design, production debugging, automation leadership, and monitoring visibility.</p>
         </div>
         <div className="timeline">
-          {portfolio.experience.map((item) => (
-            <article className="timeline-item" key={`${item.company}-${item.period}`}>
+          {portfolio.experience.map((item, index) => (
+            <article className="timeline-item" key={`${item.company}-${item.period}-${index}`}>
               <div className="timeline-meta">{item.period} · {item.location}</div>
               <h3 className="timeline-title">{item.role} | {item.company}</h3>
               <ul className="bullets">{item.bullets.map((bullet) => <li key={bullet}>{bullet}</li>)}</ul>
@@ -174,17 +181,16 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
       <section className="section" id="projects">
         <div className="section-head">
           <div><span className="section-label">Projects</span><h2>Full-stack builds with real product surfaces.</h2></div>
-          <p>Projects are stored in MongoDB and editable through the protected admin dashboard.</p>
         </div>
         <div className="project-grid">
           {portfolio.projects.map((project) => (
-            <article className="project-card" key={project.title}>
+            <article className="project-card" key={contentSlug(project)}>
               {project.imageUrl && <img className="card-image" src={optimizePortfolioImage(project.imageUrl)} alt="" loading="lazy" decoding="async" />}
               <div className="project-top"><h3>{project.title}</h3><span className="project-year">{project.year}</span></div>
               <p>{project.summary}</p>
               <div className="chips">{project.stack.map((tech) => <span className="chip" key={tech}>{tech}</span>)}</div>
               <div className="card-actions">
-                <a className="btn ghost" href={`/project/${getProjectSlug(project)}`}>View details</a>
+                <a className="btn ghost" href={`/project/${contentSlug(project)}`}>View details</a>
                 {project.links.map((link) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label}</a>)}
               </div>
             </article>
@@ -195,11 +201,10 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
       <section className="section" id="blog">
         <div className="section-head">
           <div><span className="section-label">Blog</span><h2>Writing shelf for engineering notes.</h2></div>
-          <p>Posts are stored with the rest of the portfolio content and can be updated from admin.</p>
         </div>
         <div className="blog-grid">
           {portfolio.blogs.filter((blog) => blog.published !== false).map((blog) => (
-            <a className="blog-card" href={`/blog/${getBlogSlug(blog)}`} key={blog.title}>
+            <a className="blog-card" href={`/blog/${contentSlug(blog)}`} key={contentSlug(blog)}>
               {blog.coverImage && <img className="card-image" src={optimizePortfolioImage(blog.coverImage)} alt="" loading="lazy" decoding="async" />}
               <div className="blog-date">{blog.date}</div>
               <h3>{blog.title}</h3>
@@ -221,7 +226,7 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
                 ["Email", profile.email, `mailto:${profile.email}`],
                 ["LinkedIn", cleanUrl(profile.linkedin), profile.linkedin]
               ].map(([label, text, url]) => (
-                <a className="social-card" href={url} target="_blank" rel="noreferrer" key={label}><span>{label}</span><span>{text}</span></a>
+                <a className="social-card" href={url} target={label === "Email" ? undefined : "_blank"} rel={label === "Email" ? undefined : "noreferrer"} key={label}><span>{label}</span><span>{text}</span></a>
               ))}
             </div>
           </aside>
@@ -238,12 +243,12 @@ export function PortfolioPage({ portfolio, activity, onAdminClick }: Props) {
             <label>Subject<input value={contactForm.subject} onChange={(event) => updateContactField("subject", event.target.value)} required minLength={3} maxLength={120} /></label>
             <label>Message<textarea value={contactForm.message} onChange={(event) => updateContactField("message", event.target.value)} required minLength={10} maxLength={3000} /></label>
             <label className="hidden-field">Website<input tabIndex={-1} autoComplete="off" value={contactForm.website} onChange={(event) => updateContactField("website", event.target.value)} /></label>
-            {contactStatus && <p className={`contact-status ${contactStatus.type}`}>{contactStatus.message}</p>}
+            {contactStatus && <p className={`contact-status ${contactStatus.type}`} role={contactStatus.type === "error" ? "alert" : "status"} aria-live="polite">{contactStatus.message}</p>}
             <button className="btn primary" type="submit" disabled={isSending}>{isSending ? "Sending..." : "Send message"}</button>
           </form>
         </div>
       </section>
-      <footer className="footer"><div className="footer-inner"><span>Built for {profile.name}</span><span>MERN + TypeScript with MongoDB-managed content.</span></div></footer>
+      <footer className="footer"><div className="footer-inner"><span>© {new Date().getFullYear()} {profile.name}. All rights reserved.</span></div></footer>
     </main>
   );
 }
@@ -254,12 +259,4 @@ function cleanUrl(url = "") {
 
 function optimizePortfolioImage(url: string) {
   return url === "/assets/hero-workspace.png" ? "/assets/hero-workspace.jpg" : url;
-}
-
-function getBlogSlug(blog: Portfolio["blogs"][number]) {
-  return blog.slug || blog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
-function getProjectSlug(project: Portfolio["projects"][number]) {
-  return project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
 }

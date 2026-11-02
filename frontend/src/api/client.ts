@@ -12,19 +12,22 @@ export class ApiError extends Error {
   }
 }
 
-async function request<T>(path: string, options: RequestInit = {}) {
+async function request<T>(path: string, options: RequestInit = {}, timeoutMs = 15_000) {
   let response: Response;
   try {
     response = await fetch(`${API_URL}${path}`, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...(options.headers || {}),
-      },
+      headers: requestHeaders(options),
+      signal: options.signal || AbortSignal.timeout(timeoutMs),
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "TimeoutError") {
+      throw new ApiError("The request timed out. Please try again.", 0);
+    }
     throw new ApiError("Unable to connect to the server. Please try again or email me directly.", 0);
   }
+
+  if (response.status === 204 || response.status === 205) return undefined as T;
 
   const result = await response.json().catch(() => null);
   if (!response.ok) {
@@ -38,9 +41,21 @@ async function request<T>(path: string, options: RequestInit = {}) {
   return result as T;
 }
 
+function requestHeaders(options: RequestInit) {
+  const headers = new Headers(options.headers);
+  if (!headers.has("Accept")) headers.set("Accept", "application/json");
+  if (options.body !== undefined && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
+  return headers;
+}
+
 export const api = {
   getPortfolio: () => request<Portfolio>("/portfolio"),
-  getActivity: () => request<ActivityResponse>("/activity"),
+  getAdminPortfolio: (token: string) => request<Portfolio>("/portfolio/admin", {
+    headers: { Authorization: `Bearer ${token}` },
+  }),
+  getActivity: () => request<ActivityResponse>("/activity", {}, 20_000),
   sendContact: (payload: { name: string; email: string; subject: string; message: string; website?: string }) =>
     request<{ ok: boolean; message?: string; emailSent?: boolean }>("/contact", {
       method: "POST",
@@ -50,7 +65,7 @@ export const api = {
     request<{ reply: string }>("/chat", {
       method: "POST",
       body: JSON.stringify({ messages }),
-    }),
+    }, 30_000),
   login: (email: string, password: string) =>
     request<{ token: string; admin: { email: string } }>("/auth/login", {
       method: "POST",

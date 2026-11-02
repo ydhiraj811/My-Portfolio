@@ -2,13 +2,20 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { ContactMessage } from "../models/ContactMessage.js";
 import { isMailConfigured, sendContactMail } from "../services/mailService.js";
+import { createRateLimiter } from "../middleware/rateLimit.js";
 
 const contactSchema = z.object({
-  name: z.string().trim().min(2, "Name is required").max(80),
+  name: z.string().trim().min(2, "Name is required").max(80).refine((value) => !/[\r\n\0]/.test(value), "Name contains invalid characters"),
   email: z.string().trim().email("Valid email is required").max(120),
-  subject: z.string().trim().min(3, "Subject is required").max(120),
+  subject: z.string().trim().min(3, "Subject is required").max(120).refine((value) => !/[\r\n\0]/.test(value), "Subject contains invalid characters"),
   message: z.string().trim().min(10, "Message must be at least 10 characters").max(3000),
   website: z.string().optional().default(""),
+});
+
+export const limitContactMessages = createRateLimiter({
+  limit: 20,
+  windowMs: 10 * 60_000,
+  message: "Too many messages were sent from this connection. Please try again later.",
 });
 
 export async function sendContactMessage(req: Request, res: Response) {

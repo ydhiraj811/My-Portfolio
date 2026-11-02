@@ -20,6 +20,8 @@ export default async function handler(request, response) {
       const value = request.headers[name];
       if (value) headers.set(name, Array.isArray(value) ? value.join(", ") : value);
     }
+    const clientIp = request.headers["x-vercel-forwarded-for"];
+    if (typeof clientIp === "string") headers.set("x-forwarded-for", clientIp);
 
     let body;
     if (request.method !== "GET" && request.method !== "HEAD") {
@@ -48,6 +50,7 @@ export default async function handler(request, response) {
       method: request.method || "GET",
       headers,
       body,
+      signal: AbortSignal.timeout(35_000),
     });
 
     response.statusCode = upstream.status;

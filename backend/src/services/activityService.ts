@@ -1,5 +1,7 @@
 import { config } from "../config/config.js";
 
+const PROVIDER_TIMEOUT_MS = 10_000;
+
 type CalendarDay = {
   date: string;
   count: number;
@@ -74,6 +76,7 @@ async function getGitHubContributionCalendar() {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({ query, variables: { login: config.githubUsername } }),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -90,7 +93,13 @@ async function getGitHubContributionCalendar() {
         };
       };
     };
+    errors?: Array<{ message?: string }>;
   };
+
+  if (json.errors?.length) throw new Error("GitHub contribution calendar returned an API error");
+  if (!json.data?.user?.contributionsCollection?.contributionCalendar) {
+    throw new Error("GitHub contribution calendar was not found");
+  }
 
   const rawDays = json.data?.user?.contributionsCollection?.contributionCalendar?.weeks.flatMap((week) =>
     week.contributionDays.map((day) => ({ date: day.date, count: day.contributionCount })),
@@ -110,6 +119,7 @@ async function getGitHubContributionCalendar() {
 async function getGitHubPublicEvents() {
   const response = await fetch(`https://api.github.com/users/${config.githubUsername}/events/public?per_page=100`, {
     headers: { Accept: "application/vnd.github+json" },
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -175,6 +185,7 @@ export async function getLeetCodeActivity() {
       Referer: `https://leetcode.com/u/${config.leetcodeUsername}/`,
     },
     body: JSON.stringify({ query, variables: { username: config.leetcodeUsername } }),
+    signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
   });
 
   if (!response.ok) {
@@ -182,6 +193,7 @@ export async function getLeetCodeActivity() {
   }
 
   const json = await response.json() as {
+    errors?: Array<{ message?: string }>;
     data?: {
       matchedUser?: {
         username: string;
@@ -190,6 +202,8 @@ export async function getLeetCodeActivity() {
       };
     };
   };
+
+  if (json.errors?.length) throw new Error("LeetCode returned a GraphQL error");
 
   const matchedUser = json.data?.matchedUser;
   if (!matchedUser?.userCalendar) {

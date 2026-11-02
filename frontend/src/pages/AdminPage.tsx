@@ -73,8 +73,8 @@ export function AdminPage({ portfolio, token, authMessage, onLogin, onSave, onLo
           <span className="section-label">Admin</span>
           <h1>Sign in to edit portfolio</h1>
           {(authMessage || message) && <p className={`admin-alert ${messageType === "error" || authMessage ? "error" : "success"}`}>{authMessage || message}</p>}
-          <label>Email<input value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-          <label>Password<input type="password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
+          <label>Email<input type="email" autoComplete="username" maxLength={254} value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+          <label>Password<input type="password" autoComplete="current-password" maxLength={256} value={password} onChange={(event) => setPassword(event.target.value)} /></label>
           <button className="btn primary" type="submit">Login</button>
           <button className="btn" type="button" onClick={onBack}>Back to site</button>
         </form>
@@ -177,6 +177,7 @@ function StatsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; no
       addLabel="Add stat"
       onAdd={addStat}
       emptyText="No stats yet."
+      isEmpty={portfolio.stats.length === 0}
     >
       {portfolio.stats.map((stat, index) => (
         <EditorCard title={`Stat ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.stats, index))} key={index}>
@@ -201,9 +202,9 @@ function SkillsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; n
   }
 
   return (
-    <RepeatableList addLabel="Add skill group" onAdd={addSkillGroup} emptyText="No skills yet.">
+    <RepeatableList addLabel="Add skill group" onAdd={addSkillGroup} emptyText="No skills yet." isEmpty={portfolio.skills.length === 0}>
       {portfolio.skills.map((group, index) => (
-        <EditorCard title={group.title || `Skill group ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.skills, index))} key={index}>
+        <EditorCard title={group.title || `Skill group ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.skills, index))} key={`${group.title}-${index}`}>
           <label className="field">Group title<input value={group.title} onChange={(event) => onChange(replaceAt(portfolio.skills, index, { ...group, title: event.target.value }))} /></label>
           <StringList
             title="Skills"
@@ -227,7 +228,7 @@ function ExperienceEditor({ portfolio, notify, onChange }: { portfolio: Portfoli
   }
 
   return (
-    <RepeatableList addLabel="Add experience" onAdd={addExperience} emptyText="No experience yet.">
+    <RepeatableList addLabel="Add experience" onAdd={addExperience} emptyText="No experience yet." isEmpty={portfolio.experience.length === 0}>
       {portfolio.experience.map((item, index) => (
         <EditorCard title={item.company || `Experience ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.experience, index))} key={index}>
           <div className="mini-grid">
@@ -258,7 +259,7 @@ function ProjectsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio;
   }
 
   return (
-    <RepeatableList addLabel="Add project" onAdd={addProject} emptyText="No projects yet.">
+    <RepeatableList addLabel="Add project" onAdd={addProject} emptyText="No projects yet." isEmpty={portfolio.projects.length === 0}>
       {portfolio.projects.map((project, index) => (
         <EditorCard title={project.title || `Project ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.projects, index))} key={index}>
           <div className="mini-grid">
@@ -305,7 +306,7 @@ function EducationEditor({ portfolio, notify, onChange }: { portfolio: Portfolio
   }
 
   return (
-    <RepeatableList addLabel="Add education" onAdd={addEducation} emptyText="No education yet.">
+    <RepeatableList addLabel="Add education" onAdd={addEducation} emptyText="No education yet." isEmpty={portfolio.education.length === 0}>
       {portfolio.education.map((item, index) => (
         <EditorCard title={item.title || `Education ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.education, index))} key={index}>
           <div className="mini-grid">
@@ -322,12 +323,12 @@ function EducationEditor({ portfolio, notify, onChange }: { portfolio: Portfolio
 
 function BlogsEditor({ portfolio, notify, onChange }: { portfolio: Portfolio; notify: Notify; onChange: (value: Portfolio["blogs"]) => void }) {
   function addBlog() {
-    onChange([...portfolio.blogs, { title: "", date: "", excerpt: "", slug: "", body: "", coverImage: "", metaTitle: "", metaDescription: "", published: true }]);
+    onChange([...portfolio.blogs, { title: "", date: "", excerpt: "", slug: "", body: "", coverImage: "", metaTitle: "", metaDescription: "", published: false }]);
     notify("Blog section added.");
   }
 
   return (
-    <RepeatableList addLabel="Add blog" onAdd={addBlog} emptyText="No blogs yet.">
+    <RepeatableList addLabel="Add blog" onAdd={addBlog} emptyText="No blogs yet." isEmpty={portfolio.blogs.length === 0}>
       {portfolio.blogs.map((blog, index) => (
         <EditorCard title={blog.title || `Blog ${index + 1}`} onRemove={() => onChange(removeAt(portfolio.blogs, index))} key={index}>
           <div className="mini-grid">
@@ -367,8 +368,8 @@ function PreviewPanel({ active, portfolio }: { active: Section; portfolio: Portf
       {active === "education" && <p>{portfolio.education[0]?.title || "No education yet"}</p>}
       {(active === "projects" || active === "blogs") && (
         <div className="preview-grid">
-          {previewItems.map((item) => (
-            <article className="preview-card" key={item.title}>
+          {previewItems.map((item, index) => (
+            <article className="preview-card" key={`${item.title}-${index}`}>
               {item.image && <img src={item.image} alt="" />}
               <h4>{item.title || "Untitled"}</h4>
               <p>{item.text}</p>
@@ -427,7 +428,7 @@ function LinksEditor({ links, notify, onChange }: { links: Link[]; notify: Notif
       <div className="subhead"><h3>Links</h3><button className="btn ghost" type="button" onClick={addLink}>Add link</button></div>
       {links.length === 0 && <p className="muted">No project links yet.</p>}
       {links.map((link, index) => (
-        <div className="item-row two" key={index}>
+        <div className="item-row two" key={`${link.label}-${index}`}>
           <input value={link.label} placeholder="GitHub" onChange={(event) => onChange(replaceAt(links, index, { ...link, label: event.target.value }))} />
           <input value={link.url} placeholder="https://github.com/..." onChange={(event) => onChange(replaceAt(links, index, { ...link, url: event.target.value }))} />
           <button className="btn danger" type="button" onClick={() => onChange(removeAt(links, index))}>Remove</button>
@@ -437,11 +438,11 @@ function LinksEditor({ links, notify, onChange }: { links: Link[]; notify: Notif
   );
 }
 
-function RepeatableList({ children, addLabel, onAdd, emptyText }: { children: ReactNode; addLabel: string; onAdd: () => void; emptyText: string }) {
+function RepeatableList({ children, addLabel, onAdd, emptyText, isEmpty }: { children: ReactNode; addLabel: string; onAdd: () => void; emptyText: string; isEmpty: boolean }) {
   return (
     <div className="repeatable-list">
       <div className="repeatable-top">
-        <p className="muted">{emptyText}</p>
+        {isEmpty && <p className="muted">{emptyText}</p>}
         <button className="btn primary" type="button" onClick={onAdd}>{addLabel}</button>
       </div>
       {children}

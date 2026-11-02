@@ -54,7 +54,7 @@ export function ProjectPage({ project, portfolio, onBack, onAdminClick }: Props)
             {project.links.length > 0 && (
               <>
                 <h2>Links</h2>
-                <div className="card-actions">{project.links.map((link) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={link.label}>{link.label}</a>)}</div>
+                <div className="card-actions">{project.links.map((link, index) => <a className="btn ghost" href={link.url} target="_blank" rel="noreferrer" key={`${link.label}-${index}`}>{link.label}</a>)}</div>
               </>
             )}
           </aside>

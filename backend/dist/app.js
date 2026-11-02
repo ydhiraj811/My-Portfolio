@@ -6,7 +6,9 @@ import { authRoutes } from "./routes/authRoutes.js";
 import { contactRoutes } from "./routes/contactRoutes.js";
 import { chatRoutes } from "./routes/chatRoutes.js";
 import { contentRoutes } from "./routes/contentRoutes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 export const app = express();
+app.set("trust proxy", 1);
 app.use(cors({ origin: config.clientUrl, credentials: true }));
 app.use(express.json({ limit: "1mb" }));
 app.get("/api/health", (_req, res) => {
@@ -20,3 +22,4 @@ app.use("/api/chat", chatRoutes);
 app.use((_req, res) => {
     res.status(404).json({ message: "Route not found" });
 });
+app.use(errorHandler);

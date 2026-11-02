@@ -43,7 +43,7 @@ export function ActivityCalendar({ activity }: Props) {
           <div className="activity-stats">
             <div>
               <strong>{activity.accepted ?? activity.total ?? 0}</strong>
-              <span>{activity.accepted ? "Accepted" : "Total"}</span>
+              <span>{activity.accepted !== undefined ? "Accepted" : "Total"}</span>
             </div>
             <div>
               <strong>{activity.currentStreak ?? 0}</strong>

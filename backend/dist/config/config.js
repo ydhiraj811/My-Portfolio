@@ -24,7 +24,7 @@ const configSchema = z.object({
     LEETCODE_USERNAME: z.string().min(1).default("ydhiraj811"),
     SMTP_HOST: z.string().optional().default(""),
     SMTP_PORT: z.coerce.number().int().positive().optional().default(587),
-    SMTP_SECURE: z.coerce.boolean().optional().default(false),
+    SMTP_SECURE: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
     SMTP_USER: z.string().optional().default(""),
     SMTP_PASS: z.string().optional().default(""),
     CONTACT_TO_EMAIL: z.string().email().optional(),

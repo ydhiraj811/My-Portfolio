@@ -10,12 +10,14 @@ MERN + TypeScript portfolio with MongoDB-backed dynamic content, JWT-protected a
 ## Setup
 
 ```bash
-npm install
+npm ci
 cp .env.example backend/.env
 npm run dev
 ```
 
 MongoDB must be running locally or `MONGODB_URI` must point to a MongoDB Atlas database.
+
+Run `npm test` for backend validation and middleware regression tests, then `npm run build` before deploying.
 
 For Vercel deployments, set `BACKEND_URL` in the frontend project's environment variables to the backend origin (for example, `https://api.example.com`, without `/api`). The `/api/*` function forwards requests to that service. For direct browser-to-backend requests, set `VITE_API_URL` and allow the frontend origin with the backend's `CLIENT_URL` setting.
 
@@ -44,7 +46,17 @@ Change them before deploying.
 - Project image URL and blog cover image URL fields.
 - SEO title and SEO description fields for project and blog detail pages.
 - Focused project/blog APIs in addition to the full portfolio update API.
-- test
+
+## Engineering Documentation
+
+- [Documentation index](docs/README.md)
+- [Architecture and system design](docs/architecture.md)
+- [Scalability assessment and roadmap](docs/scalability.md)
+- [API reference](docs/api.md)
+- [Data model](docs/data-model.md)
+- [Security and privacy](docs/security.md)
+- [Deployment and configuration](docs/deployment.md)
+- [Operations and troubleshooting](docs/operations.md)
 
 ## Content APIs
 

@@ -37,7 +37,7 @@ export function BlogPage({ blog, portfolio, onBack, onAdminClick }: Props) {
         <p className="article-excerpt">{blog.excerpt}</p>
         <div className="article-body">
           {formatBody(blog.body || blog.excerpt).map((paragraph, index) => (
-            <p key={`${paragraph}-${index}`}>{paragraph}</p>
+            <p key={`${paragraph}-${index}`}>{formatInlineLinks(paragraph)}</p>
           ))}
         </div>
       </article>
@@ -54,4 +54,15 @@ function formatBody(body: string) {
     .split(/\n{2,}/)
     .map((paragraph) => paragraph.trim())
     .filter(Boolean);
+}
+
+function formatInlineLinks(text: string) {
+  return text
+    .split(/(\[[^\]]+\]\(https:\/\/[^)\s]+\))/g)
+    .map((part, index) => {
+      const match = part.match(/^\[([^\]]+)\]\((https:\/\/[^)\s]+)\)$/);
+      return match
+        ? <a key={index} href={match[2]} target="_blank" rel="noreferrer">{match[1]}</a>
+        : part;
+    });
 }

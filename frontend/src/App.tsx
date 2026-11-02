@@ -1,14 +1,15 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { ApiError, api } from "./api/client";
 import { PortfolioPage } from "./pages/PortfolioPage";
 import type { ActivityResponse, Portfolio } from "./types/portfolio";
 import { defaultContent } from "../../backend/src/utils/defaultContent";
+import { contentSlug } from "./utils/contentSlug";
 
 const AdminPage = lazy(() => import("./pages/AdminPage").then((module) => ({ default: module.AdminPage })));
 const BlogPage = lazy(() => import("./pages/BlogPage").then((module) => ({ default: module.BlogPage })));
 const ProjectPage = lazy(() => import("./pages/ProjectPage").then((module) => ({ default: module.ProjectPage })));
 const PortfolioChat = lazy(() => import("./components/PortfolioChat").then((module) => ({ default: module.PortfolioChat })));
-const PORTFOLIO_CACHE_KEY = "portfolio-content-v1";
+const PORTFOLIO_CACHE_KEY = "portfolio-content-v2";
 
 export function App() {
   const [portfolio, setPortfolio] = useState<Portfolio>(() => readCachedPortfolio() ?? (defaultContent as Portfolio));
@@ -16,18 +17,27 @@ export function App() {
   const [page, setPage] = useState(getPageFromLocation());
   const [token, setToken] = useState("");
   const [authMessage, setAuthMessage] = useState("");
+  const [activityError, setActivityError] = useState("");
+  const contentRequestVersion = useRef(0);
 
   useEffect(() => {
+    const requestVersion = contentRequestVersion.current;
     api
       .getPortfolio()
       .then((nextPortfolio) => {
+        if (requestVersion !== contentRequestVersion.current) return;
         setPortfolio(nextPortfolio);
         cachePortfolio(nextPortfolio);
       })
       .catch(() => undefined);
 
     const loadActivity = () => {
-      api.getActivity().then(setActivity).catch(() => undefined);
+      api.getActivity().then((nextActivity) => {
+        setActivity(nextActivity);
+        setActivityError("");
+      }).catch((error: unknown) => {
+        setActivityError(error instanceof Error ? error.message : "Live activity is temporarily unavailable.");
+      });
     };
 
     if ("requestIdleCallback" in window) {
@@ -49,8 +59,43 @@ export function App() {
     };
   }, []);
 
+  useEffect(() => {
+    if (page === "admin") {
+      updatePageMeta("Portfolio Admin | Dhiraj Kumar Yadav", "Protected admin dashboard for portfolio content.", false);
+      return;
+    }
+
+    if (page.startsWith("blog:")) {
+      const slug = page.slice("blog:".length);
+      const blog = portfolio.blogs.find((item) => contentSlug(item) === slug && item.published !== false);
+      if (blog) {
+        updatePageMeta(blog.metaTitle || blog.title, blog.metaDescription || blog.excerpt);
+        return;
+      }
+    }
+
+    if (page.startsWith("project:")) {
+      const slug = page.slice("project:".length);
+      const project = portfolio.projects.find((item) => contentSlug(item) === slug);
+      if (project) {
+        updatePageMeta(project.metaTitle || project.title, project.metaDescription || project.summary);
+        return;
+      }
+    }
+
+    if (page === "not-found" || page.startsWith("blog:") || page.startsWith("project:")) {
+      updatePageMeta("Page not found | Dhiraj Kumar Yadav", "The requested portfolio page could not be found.", false);
+      return;
+    }
+
+    updatePageMeta(`${portfolio.profile.name} | ${portfolio.profile.role}`, portfolio.profile.summary);
+  }, [page, portfolio]);
+
   async function handleLogin(email: string, password: string) {
     const result = await api.login(email, password);
+    const adminPortfolio = await api.getAdminPortfolio(result.token);
+    contentRequestVersion.current += 1;
+    setPortfolio(adminPortfolio);
     setToken(result.token);
     setAuthMessage("");
   }
@@ -95,10 +140,15 @@ export function App() {
   function handleLogout() {
     setToken("");
     setAuthMessage("Logged out. Please login again to edit.");
+    const requestVersion = ++contentRequestVersion.current;
+    api.getPortfolio().then((publicPortfolio) => {
+      if (requestVersion !== contentRequestVersion.current) return;
+      setPortfolio(publicPortfolio);
+      cachePortfolio(publicPortfolio);
+    }).catch(() => undefined);
   }
 
   if (page === "admin") {
-    updatePageMeta("Portfolio Admin | Dhiraj Kumar Yadav", "Protected admin dashboard for portfolio content.", false);
     return (
       <Suspense fallback={<main className="loading">Loading admin...</main>}>
         <AdminPage
@@ -118,11 +168,10 @@ export function App() {
   }
 
   if (page.startsWith("blog:")) {
-    const slug = page.replace("blog:", "");
-    const blog = portfolio.blogs.find((item) => getBlogSlug(item) === slug && item.published !== false);
+    const slug = page.slice("blog:".length);
+    const blog = portfolio.blogs.find((item) => contentSlug(item) === slug && item.published !== false);
 
     if (blog) {
-      updatePageMeta(blog.metaTitle || blog.title, blog.metaDescription || blog.excerpt);
       return (
         <Suspense fallback={<main className="loading">Loading article...</main>}>
           <BlogPage
@@ -141,14 +190,14 @@ export function App() {
         </Suspense>
       );
     }
+    return <NotFoundPage onBack={() => { history.pushState(null, "", "/"); setPage("site"); }} />;
   }
 
   if (page.startsWith("project:")) {
-    const slug = page.replace("project:", "");
-    const project = portfolio.projects.find((item) => getProjectSlug(item) === slug);
+    const slug = page.slice("project:".length);
+    const project = portfolio.projects.find((item) => contentSlug(item) === slug);
 
     if (project) {
-      updatePageMeta(project.metaTitle || project.title, project.metaDescription || project.summary);
       return (
         <Suspense fallback={<main className="loading">Loading project...</main>}>
           <ProjectPage
@@ -167,12 +216,16 @@ export function App() {
         </Suspense>
       );
     }
+    return <NotFoundPage onBack={() => { history.pushState(null, "", "/"); setPage("site"); }} />;
   }
 
-  updatePageMeta(`${portfolio.profile.name} | ${portfolio.profile.role}`, portfolio.profile.summary);
+  if (page === "not-found") {
+    return <NotFoundPage onBack={() => { history.pushState(null, "", "/"); setPage("site"); }} />;
+  }
+
   return (
     <>
-      <PortfolioPage portfolio={portfolio} activity={activity} onAdminClick={() => { history.pushState(null, "", "/#admin"); setPage("admin"); }} />
+      <PortfolioPage portfolio={portfolio} activity={activity} activityError={activityError} onAdminClick={() => { history.pushState(null, "", "/#admin"); setPage("admin"); }} />
       <Suspense fallback={null}><PortfolioChat /></Suspense>
     </>
   );
@@ -187,15 +240,21 @@ function getPageFromLocation() {
   if (hash === "admin") return "admin";
   if (hash.startsWith("blog/")) return `blog:${hash.replace("blog/", "")}`;
   if (hash.startsWith("project/")) return `project:${hash.replace("project/", "")}`;
+  if (path) return "not-found";
   return "site";
 }
 
-function getBlogSlug(blog: Portfolio["blogs"][number]) {
-  return blog.slug || blog.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
-}
-
-function getProjectSlug(project: Portfolio["projects"][number]) {
-  return project.slug || project.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
+function NotFoundPage({ onBack }: { onBack: () => void }) {
+  return (
+    <main className="site-shell article-shell">
+      <section className="article-page">
+        <span className="section-label">404</span>
+        <h1>Page not found</h1>
+        <p className="article-excerpt">This page may have moved or is no longer available.</p>
+        <button className="btn primary" onClick={onBack}>Back to portfolio</button>
+      </section>
+    </main>
+  );
 }
 
 function updatePageMeta(title: string, description: string, indexable = true) {
