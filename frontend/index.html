@@ -7,7 +7,14 @@
     <meta name="description" content="Dhiraj Kumar Yadav is a software engineer in New Delhi building backend APIs, cloud services, MERN applications, and production monitoring systems." />
     <meta name="author" content="Dhiraj Kumar Yadav" />
     <meta name="robots" content="index, follow, max-image-preview:large" />
-    <link rel="canonical" href="https://dhiraj-yadav.in/" />
+    <script>
+      (() => {
+        const canonical = document.createElement("link");
+        canonical.rel = "canonical";
+        canonical.href = new URL(window.location.pathname, "https://dhiraj-yadav.in").href;
+        document.head.appendChild(canonical);
+      })();
+    </script>
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     <link rel="alternate" type="text/plain" href="https://dhiraj-yadav.in/llms.txt" />
